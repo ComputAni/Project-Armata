@@ -1,6 +1,18 @@
 import RPi.GPIO as gpio
 import time
 
+'''
+Citations:
+
+1. Basic GPIO Set up
+https://www.youtube.com/watch?v=pbCdNh0TiUo&list=PLQVvvaa0QuDeJlgD1RX9_49tMLUxvIxF4&index=3
+
+2. PID Set up from 18-349 S17, PID Lecture and Lab 4
+
+3. Callback help:
+http://raspi.tv/2013/how-to-use-interrupts-with-python-on-the-raspberry-pi-and-rpi-gpio-part-3
+http://raspi.tv/2014/rpi-gpio-update-and-detecting-both-rising-and-falling-edges
+'''
 
 curr = 0
 dest = 2000
