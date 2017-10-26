@@ -23,22 +23,22 @@ Ki = 0
 
 def init():
     gpio.setmode(gpio.BOARD)
-    gpio.setup(2, gpio.OUT)
     gpio.setup(3, gpio.OUT)
-    gpio.setup(18, gpio.IN, pull_up_down=gpio.PUD_UP)
-    gpio.setup(23, gpio.IN, pull_up_down=gpio.PUD_UP)
-    gpio.add_event_detect(18, gpio.FALLING, callback=encoderCB)
-    gpio.add_event_detect(23, gpio.FALLING, callback=encoderCB)
+    gpio.setup(5, gpio.OUT)
+    gpio.setup(12, gpio.IN, pull_up_down=gpio.PUD_UP)
+    gpio.setup(16, gpio.IN, pull_up_down=gpio.PUD_UP)
+    gpio.add_event_detect(12, gpio.FALLING, callback=encoderCB)
+    gpio.add_event_detect(16, gpio.FALLING, callback=encoderCB)
 
 def encoderCB(channel):
     global curr
-    if channel == 18:
-        if (gpio.input(18) ^ gpio.input(23) == 0):
+    if channel == 12:
+        if (gpio.input(12) ^ gpio.input(16) == 0):
             curr += 1
         else:
             curr -= 1
-    if channel == 11:
-        if (gpio.input(18) ^ gpio.input(23) == 1):
+    if channel == 16:
+        if (gpio.input(12) ^ gpio.input(16) == 1):
             curr += 1
         else:
             curr -= 1
@@ -61,11 +61,11 @@ def rot(duty):
     else:
         output15 = True
     T = float(abs(duty)) / 1000
-    gpio.output(2, output13)
-    gpio.output(3, output15)
+    gpio.output(3, output13)
+    gpio.output(5, output15)
     time.sleep(T)
-    gpio.output(2, False)
     gpio.output(3, False)
+    gpio.output(5, False)
     time.sleep(0.1 - T) # 100% duty cycle, divided by 1000
 
 def forward(steps):
