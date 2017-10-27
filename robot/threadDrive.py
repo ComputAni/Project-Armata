@@ -44,6 +44,7 @@ class motor(object):
         self.dest = dest
 
     def encoderCB(self, channel):
+        print("HERE?")
         if channel == self.in1:
             if (gpio.input(self.in1) ^ gpio.input(self.in2) == 0):
                 self.curr += 1
@@ -76,20 +77,21 @@ class motor(object):
         prevErr = 0
         iErr = 0
         while (abs(self.curr - self.dest) > cutoff):
-            pErr = steps - self.curr
+            pErr = self.dest - self.curr
             dErr = pErr - prevErr
             iErr += pErr 
             pidOut = (Kp * pErr) + (Kd * dErr) + (Ki * iErr)
-            clipped = clip(pidOut)
+            clippedErr = clip(pidOut)
             self.rot(clippedErr)
             prevErr = pErr
+            print(self.curr)
 
 
 gpio.setmode(gpio.BOARD)
 threadL = []
 A = motor(3, 5, 12, 16, 500)
-B = motor(7, 17, 18, 22, 500)
-motorL = [A, B]
+B = motor(7, 11, 18, 22, 500)
+motorL = [A]
 for mot in motorL:
     t = threading.Thread(target=mot.workerMethod)
     threadL.append(t)

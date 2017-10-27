@@ -42,6 +42,7 @@ def encoderCB(channel):
             curr += 1
         else:
             curr -= 1
+    print(curr)
 
 def clip(diff):
     if diff > 100:
