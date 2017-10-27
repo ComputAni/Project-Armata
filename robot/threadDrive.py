@@ -87,10 +87,13 @@ class motor(object):
 
 gpio.setmode(gpio.BOARD)
 threadL = []
+# Numbers are rpi ports not gpio
+# A/B and C/D have ports flipped since orientation flipped
 A = motor(3, 5, 12, 16, 500)
 B = motor(7, 11, 18, 22, 3000)
 C = motor(15, 13, 26, 24, 2000)
-motorL = [A, B, C]
+D = motor(21, 19, 36, 32, 1000)
+motorL = [A, B, C, D]
 for mot in motorL:
     t = threading.Thread(target=mot.workerMethod)
     threadL.append(t)
