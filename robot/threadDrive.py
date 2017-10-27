@@ -87,9 +87,10 @@ class motor(object):
 
 gpio.setmode(gpio.BOARD)
 threadL = []
-A = motor(3, 5, 12, 16, 2000)
-B = motor(7, 11, 18, 22, 2000)
-motorL = [A, B]
+A = motor(3, 5, 12, 16, 500)
+B = motor(7, 11, 18, 22, 3000)
+C = motor(15, 13, 26, 24, 2000)
+motorL = [A, B, C]
 for mot in motorL:
     t = threading.Thread(target=mot.workerMethod)
     threadL.append(t)
