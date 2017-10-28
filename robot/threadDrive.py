@@ -13,12 +13,33 @@ https://www.youtube.com/watch?v=pbCdNh0TiUo&list=PLQVvvaa0QuDeJlgD1RX9_49tMLUxvI
 3. Callback help:
 http://raspi.tv/2013/how-to-use-interrupts-with-python-on-the-raspberry-pi-and-rpi-gpio-part-3
 http://raspi.tv/2014/rpi-gpio-update-and-detecting-both-rising-and-falling-edges
+
+4. Threading:
+https://stackoverflow.com/questions/28201667/killing-or-stopping-an-active-thread
+
 '''
 
 cutoff = 10
 Kp = 1
 Kd = 0.6
 Ki = 0
+
+class RaspberryThread(threading.Thread):
+    def __init__(self, function):
+        self.running = False
+        self.function = function
+        super(RaspberryThread, self).__init__()
+
+    def start(self):
+        self.running = True
+        super(RaspberryThread, self).start()
+
+    def run(self):
+        while self.running:
+            self.function()
+
+    def stop(self):
+        self.running = False
 
 def clip(diff):
     if diff > 100:
@@ -106,7 +127,7 @@ def cw90():
     motorL = [A, B, C, D]
     threadL = []
     for mot in motorL:
-        t = threading.Thread(target=mot.workerMethod)
+        t = RaspberryThread(function=mot.workerMethod)
         threadL.append(t)
         t.start()
     for t in threadL:
@@ -120,7 +141,7 @@ def ccw90():
     motorL = [A, B, C, D]
     threadL = []
     for mot in motorL:
-        t = threading.Thread(target=mot.workerMethod)
+        t = threading.Thread(function=mot.workerMethod)
         threadL.append(t)
         t.start()
     for t in threadL:
@@ -134,5 +155,5 @@ threadL = []
 # forward(2900)
 cw90()
 
-gpio.cleanup()
+# gpio.cleanup()
 
