@@ -99,11 +99,13 @@ def forward(ticks):
     C = motor(15, 13, 26, 24, ticks)
     D = motor(21, 19, 36, 32, ticks)
     motorL = [A, B, C, D]
-    maxErr = maxDist(motorL)
+    maxErr = cutoff + 1
     while (maxErr > cutoff):
         for m in motorL:
             m.pid()
         maxErr = maxDist(motorL)
+        print(maxErr)
 
+gpio.setmode(gpio.BOARD)
 forward(3000)
-
+gpio.cleanup()

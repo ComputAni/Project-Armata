@@ -19,27 +19,10 @@ https://stackoverflow.com/questions/28201667/killing-or-stopping-an-active-threa
 
 '''
 
-cutoff = 10
+cutoff = 20
 Kp = 1
 Kd = 0.6
 Ki = 0
-
-class RaspberryThread(threading.Thread):
-    def __init__(self, function):
-        self.running = False
-        self.function = function
-        super(RaspberryThread, self).__init__()
-
-    def start(self):
-        self.running = True
-        super(RaspberryThread, self).start()
-
-    def run(self):
-        while self.running:
-            self.function()
-
-    def stop(self):
-        self.running = False
 
 def clip(diff):
     if diff > 100:
@@ -104,6 +87,7 @@ class motor(object):
             clippedErr = clip(pidOut)
             self.rot(clippedErr)
             prevErr = pErr
+            print(prevErr, self.out1)
 
 def forward(ticks):
     A = motor(3, 5, 12, 16, ticks)
@@ -117,7 +101,7 @@ def forward(ticks):
         threadL.append(t)
         t.start()
     for t in threadL:
-        t.join(5)
+        t.join(6)
 
 def cw90():
     A = motor(3, 5, 12, 16, 1060)
@@ -127,7 +111,7 @@ def cw90():
     motorL = [A, B, C, D]
     threadL = []
     for mot in motorL:
-        t = RaspberryThread(function=mot.workerMethod)
+        t = threading.Thread(target=mot.workerMethod)
         threadL.append(t)
         t.start()
     for t in threadL:
@@ -155,5 +139,5 @@ threadL = []
 # forward(2900)
 cw90()
 
-# gpio.cleanup()
+gpio.cleanup()
 
