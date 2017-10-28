@@ -1,10 +1,20 @@
 from math import sqrt
 from itertools import product
 from Queue import PriorityQueue
+import copy
 import random
 
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
+
+
+class Node(object):
+    def __init__(self, r,c, state, weight):
+        self.row = r
+        self.col = c
+        self.state = state
+        self.weight = weight
+
 
 
 #Generates a graph which is just a list of (x,y) nodes
@@ -12,9 +22,12 @@ def make_graph(numRows, numCols):
     res = []
 
     for i in xrange(numRows):
+        tr = []
         for j in xrange(numCols):
             weight = 1 #+ random.randint(0,1)
-            res.append((i,j,"empty", weight))
+            tr.append(Node(i,j,"empty", weight))
+        res.append(tr)
+
     return res
 
 
@@ -28,27 +41,28 @@ def neighbors(graph, numRows, numCols):
     neighbors = dict()
     
     dirs = [(0,1), (0,-1), (1,0), (-1,0)]
-    for node in graph:
-        neighbors[node] = set()
-        for (x,y) in dirs:
-            cr,cc = node[0] + x, node[1] + y
-            if inBounds(cr,cc,numRows, numCols):
-                neighbors[node].add(graph[numCols*cr + cc])
+    for row in graph:
+        for node in row:
+            neighbors[node] = set()
+            for (x,y) in dirs:
+                cr,cc = node.row + x, node.col + y
+                if inBounds(cr,cc,numRows, numCols):
+                    neighbors[node].add(graph[cr][cc])
 
     return neighbors
 
 #Heuristic function for manhatten distance
 def heuristic(node1, node2):
 
-    (x1,y1) = node1[0], node1[1]
-    (x2,y2) = node2[0], node2[1]
+    (x1,y1) = node1.row, node1.col
+    (x2,y2) = node2.row, node2.col
 
     return abs(x1-x2) + abs(y1-y2)
 
 
 def cost(node1, node2):
     #Just return the cost of going to this node (we can make this more advanced later)
-    return node2[3]
+    return node2.weight
 
 #Astar search algorithm, keeps iterating until no more nodes to explore/reached the end
 def astar_search(graph, neighbors, start, end):
@@ -85,7 +99,6 @@ def generate_path(path, end):
 
     curr = path[end]
 
-
     while (curr != None):
         res.append(curr)
         curr = path[curr]
@@ -93,42 +106,154 @@ def generate_path(path, end):
     res.pop()
     return res
 
-#Basically does two things, first updates the Node weight in our graph representation (list)
-#Then also updates the neighbors "understanding" of the current node (e.g updates the weights in the neighbor lists)
-#I can definitely make this better, will try soon
-def updateWeight(index, node, g,n, w, numRows, numCols):
-    original = node
-    temp = list(g[index])
-    temp[3] = w
-    new = tuple(temp)
-    g[index] = new
+def update_weight(r,c,g,n,w, numRows, numCols):
 
-    newNode = g[index]
-    n[newNode] = n.pop(node)
+    #Update entry in graph
+    node = g[r][c]
+    neighbors = copy.copy(n[node])
 
-    dirs = [(0,1), (0,-1), (1,0), (-1,0)]
-    for (x,y) in dirs:
-        cr,cc = newNode[0] + x, newNode[1] + y
-        if (inBounds(cr,cc, numRows, numCols)):
-            nIndex = numRows*cr + cc
-            neighborNode = g[nIndex]
+    del n[node]
 
-            neighbors = n[neighborNode]
-            if (original in neighbors):
-                neighbors.remove(original)
-                neighbors.add(newNode)
-                n[neighborNode] = neighbors
+    node.weight = w
+    n[node] = neighbors
 
     return g,n
 
 
+def move_forward():
+    return
+
+def move_backward():
+    return
+
+def rotate_cw():
+    return
+
+def rotate_ccw():
+    return
+
 #Given the current and new locations, and the orientation, returns some motor_api
 #call that instructs the robot to move accordingly, at the end will update the orientation
 def motion_plan(curr, new, orientation):
-    return "N"
-    
+    currX,currY = curr.row, curr.col
+    newX,newY = new.row, new.col
+
+    deltaX = newX - currX
+    deltaY = newY - currY
+
+    delta = (deltaX,deltaY)
+
+    #Going north
+    if (delta == (1,0)):
+        if (orientation == "N"):
+            #Go straight, since we're already facing this direction
+            move_forward()
+            pass
+        elif (orientation == "S"):
+            move_backward()
+            pass
+        elif (orientation == "W"):
+            rotate_cw()
+            move_forward()
+            pass
+        elif (orientation == "E"):
+            rotate_ccw()
+            move_forward()
+            pass
+        else:
+            move_forward()
+            pass
+        newOrientation = "N"
+    #Going east
+    elif (delta == (0,1)):
+        if (orientation == "N"):
+            rotate_cw()
+            move_forward()
+            pass
+        elif (orientation == "S"):
+            rotate_ccw()
+            move_forward()
+            pass
+        elif (orientation == "W"):
+            move_backward()
+            pass
+        elif (orientation == "E"):
+            move_forward()
+            pass
+        else:
+            move_forward()
+            pass
+        newOrientation = "E"
+    #Going south
+    elif (delta == (-1,0)):
+        if (orientation == "N"):
+            move_backward()
+            pass
+        elif (orientation == "S"):
+            move_forward()
+            pass
+        elif (orientation == "W"):
+            rotate_ccw()
+            move_forward()
+            pass
+        elif (orientation == "E"):
+            rotate_cw()
+            move_forward()
+            pass
+        else:
+            #Default to just go forward
+            move_forward()
+            pass
+
+        #Update orientation to face the direction of movement
+        newOrientation = "S"
+    #Going west
+    elif (delta == (0,-1)):
+        if (orientation == "N"):
+            rotate_ccw()
+            move_forward()
+            pass
+        elif (orientation == "S"):
+            rotate_cw()
+            move_forward()
+            pass
+        elif (orientation == "W"):
+            move_forward()
+            pass
+        elif (orientation == "E"):
+            move_backward()
+            pass
+        else:
+            move_forward()
+            pass
+        newOrientation = "W"
+
+    return newOrientation
+
+#CV Routine
+def obstacles():
+    return
 
 
+def print_graph(g, numRows, numCols):
+    for i in range(numRows):
+        for j in range(numCols):
+            node = g[i][j]
+
+            print (node.row, node.col, node.weight)
+
+def print_neighbors(n, numRows, numCols):
+
+    for node in n:
+        neighbs = n[node]
+        print node.row,node.col
+
+        for nNode in neighbs:
+            print "foo: ", nNode.row, nNode.col, nNode.weight
+
+def print_node(n):
+    print (n.row, n.col, n.weight)
+    return
 
 #Main loop, basically just infinite loops until we reach ending path
 #It gets the route, extracts the next move, motion plans said move
@@ -138,19 +263,34 @@ def main():
     numCols = 9
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
-    start = g[0]
-    end = g[70]
+
+    start = g[0][0]
+    end = g[7][7]
 
     curr = start
-    count = 1
-
     res = []
     i= 0
 
     currentOrientation = "N"
 
+    update_weight(1,1,g,n, 1000, numRows, numCols)
+    update_weight(0,1,g,n,1000,numRows, numCols)
+    update_weight(2,2,g,n,1000,numRows, numCols)
+    update_weight(5,7,g,n,1000, numRows, numCols)
+
+    print_neighbors(n,numRows,numCols)
+    print_graph(g, numRows, numCols)
+
+
+    print "Starting at: ", print_node(curr)
+    print "with orientation: ", currentOrientation
+
     while (curr != end):
-        
+
+        #Detect obstacles
+        obstacles()
+
+
         #Plan new route, assuming new information given
         p = astar_search(g, n, curr,end)
         path = generate_path(p, end)
@@ -161,29 +301,21 @@ def main():
 
         #Use robot API to maneuver, given current orientation and nodes to go to
         newOrientation = motion_plan(curr, new, currentOrientation)
+        #print newOrientation
         
         #Update states
         curr = new
         currentOrientation = newOrientation
 
 
-        if (i == 1):
-            g,n = updateWeight(4, g[4], g , n, 1000, numRows, numCols)
-            pass
-        elif (i == 4):
-            g,n = updateWeight(60, g[60], g , n, 1000, numRows, numCols)
-            g,n = updateWeight(61, g[61], g , n, 1000, numRows, numCols)
-            pass
-        elif (i == 7):
-            g,n = updateWeight(69, g[69], g , n, 1000, numRows, numCols)
-            pass
-        i +=1
+
 
     res.append(end)
+    print_res = []
+    for node in res:
+        print_res.append((node.row,node.col))
 
-    #print g[60]
-
-    print res
+    print print_res
 
 
 main()
