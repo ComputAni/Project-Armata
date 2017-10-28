@@ -84,23 +84,55 @@ class motor(object):
             self.rot(clippedErr)
             prevErr = pErr
 
+def forward(ticks):
+    A = motor(3, 5, 12, 16, ticks)
+    B = motor(7, 11, 18, 22, ticks)
+    C = motor(15, 13, 26, 24, ticks)
+    D = motor(21, 19, 36, 32, ticks)
+    motorL = [A, B, C, D]
+    threadL = []
+    for mot in motorL:
+        t = threading.Thread(target=mot.workerMethod)
+        threadL.append(t)
+        t.start()
+    for t in threadL:
+        t.join(5)
+
+def cw90():
+    A = motor(3, 5, 12, 16, 1060)
+    B = motor(7, 11, 18, 22, 1060)
+    C = motor(13, 15, 24, 26, 1000)
+    D = motor(19, 21, 32, 36, 1000)
+    motorL = [A, B, C, D]
+    threadL = []
+    for mot in motorL:
+        t = threading.Thread(target=mot.workerMethod)
+        threadL.append(t)
+        t.start()
+    for t in threadL:
+        t.join(5)
+
+def ccw90():
+    A = motor(5, 3, 16, 12, 1060)
+    B = motor(11, 7, 22, 18, 1060)
+    C = motor(15, 13, 26, 24, 1000)
+    D = motor(21, 19, 36, 32, 1000)
+    motorL = [A, B, C, D]
+    threadL = []
+    for mot in motorL:
+        t = threading.Thread(target=mot.workerMethod)
+        threadL.append(t)
+        t.start()
+    for t in threadL:
+        t.join(5)
 
 gpio.setmode(gpio.BOARD)
 threadL = []
 # Numbers are rpi ports not gpio
 # A/B and C/D have ports flipped since orientation flipped
-A = motor(3, 5, 12, 16, 500)
-B = motor(7, 11, 18, 22, 3000)
-C = motor(15, 13, 26, 24, 2000)
-D = motor(21, 19, 36, 32, 1000)
-motorL = [A, B, C, D]
-for mot in motorL:
-    t = threading.Thread(target=mot.workerMethod)
-    threadL.append(t)
-    t.start()
 
-for t in threadL:
-    t.join()
+# forward(2900)
+cw90()
 
 gpio.cleanup()
 
