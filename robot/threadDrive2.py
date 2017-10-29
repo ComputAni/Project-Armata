@@ -79,6 +79,8 @@ class motor(object):
     def workerMethod(self):
         prevErr = 0
         iErr = 0
+        if (self.out1 == 21):
+            self.dest = - self.dest
         while (abs(self.curr - self.dest) > cutoff):
             self.pErr = self.dest - self.curr
             dErr = self.pErr - prevErr
