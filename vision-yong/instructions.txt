@@ -1,0 +1,9 @@
+This is a "How to" on setting up vision on the pi.
+
+1) Copy obstacleDetection.py into the same folder as the robot file or copy the functions from the file (and their imports) into the robot file.
+2) Save "obstacleCalibrate.png" into the same folder as above.
+3) Create a new folder in the same directory as above called "results"
+3) Call the function "calibrateObstacle" in your file and save the return values - "knownDistance" and "knownWidthPx"
+4) Initialize a global count to 1.
+5) For every image you take, call the function "getDistance" with knownDistance and knownWidthPx (from step 3) along with the image path relative to where the code lives and the count. Make sure to increment the count everytime you call this function.
+6) The function returns the distance. 
