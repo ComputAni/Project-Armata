@@ -105,70 +105,14 @@ def forward(ticks):
     for t in threadL:
         t.join()
 
-def cw90():
-    A = motor(3, 5, 12, 16, 1000)
-    B = motor(7, 11, 18, 22, 1000)
-    C = motor(13, 15, 24, 26, 1000)
-    D = motor(19, 21, 32, 36, 1000)
-    motorL = [A, B, C, D]
-    threadL = []
-    for mot in motorL:
-        t = threading.Thread(target=mot.workerMethod)
-        threadL.append(t)
-        t.start()
-    for t in threadL:
-        t.join()
 
-def ccw90():
-    A = motor(5, 3, 16, 12, 1200)
-    B = motor(11, 7, 22, 18, 1200)
-    C = motor(15, 13, 26, 24, 1200)
-    D = motor(21, 19, 36, 32, 1200)
-    motorL = [A, B, C, D]
-    threadL = []
-    for mot in motorL:
-        t = threading.Thread(target=mot.workerMethod)
-        threadL.append(t)
-        t.start()
-    for t in threadL:
-        t.join()
 
-def pivCW():
-    cw90()
-    try:
-        sys.stdout.close()
-    except:
-        pass
-    try:
-        sys.stderr.close()
-    except:
-        pass
-
-def pivCCW():
-    ccw90()
-    try:
-        sys.stdout.close()
-    except:
-        pass
-    try:
-        sys.stderr.close()
-    except:
-        pass
 
 
 # Numbers are rpi ports not gpio
-# A/B and C/D have ports flipped since orientation flipped
-# pivCW()
-# pivCCW()
+# A/B and :C/D have ports flipped since orientation flipped
 gpio.setmode(gpio.BOARD)
 
-# forward(2800)
-forward(2800)
-for i in range(2):
-    pivCW()
-    pivCCW()
-
+forward(-2800)
 gpio.cleanup()
-# pivCCW()
-# forward(2800)
 
