@@ -1,106 +1,189 @@
 from math import sqrt
 from itertools import product
+from Queue import PriorityQueue
+import random
 
-class AStar(object):
-    def __init__(self, graph):
-        self.graph = graph
-
-    #Astar search algorithm
-    def search(self, start, end):
-        openset = set()
-        closedset = set()
-        current = start
-        openset.add(current)
-
-        while openset:
-            #Will change this to be a minheap later, but right now just finds the min heuristic cost
-            #from the set using a lambda
-            current = min(openset, key=lambda o:o.g + o.h)
-
-            #If we reached our goal, add to result list
-            if current == end:
-                path = []
-                while current.parent:
-                    path.append(current)
-                    current = current.parent
-                path.append(current)
-                return path[::-1]
-
-            #Otherwise, remove from nodes to visit, and add to closed
-            openset.remove(current)
-            closedset.add(current)
-
-            #Iterate over all neighbors
-            for node in self.graph[current]:
-                if node in closedset:
-                    continue
-                #If node can be explored, calculate its new cost, update cost only if its less
-                if node in openset:
-                    new_g = current.g + current.move_cost(node)
-                    if node.g > new_g:
-                        node.g = new_g
-                        node.parent = current
-                #Otherwise, calculate heuristic, manhattan distance, and update "path" by setting parent
-                #Also add to openset to be considered on the frontier
-                else:
-                    node.g = current.g + current.move_cost(node)
-                    node.h = self.heuristic(node, start, end)
-                    node.parent = current
-                    openset.add(node)
-        return None
+#Orientations for the robot, facing N (default)
+orientations = ["N", "S", "W", "E"]
 
 
-class AStarNode(object):
-    def __init__(self):
-        self.g = 0
-        self.h = 0
-        self.parent = None
+#Generates a graph which is just a list of (x,y) nodes
+def make_graph(numRows, numCols):
+    res = []
 
-#Heuristic is manhattan distance rn
-class AStarGrid(AStar):
-    def heuristic(self, node, start, end):
-        return sqrt((end.x - node.x)**2 + (end.y - node.y)**2)
-
-
-class AStarGridNode(AStarNode):
-    def __init__(self, x, y):
-        self.x, self.y = x, y
-        super(AStarGridNode, self).__init__()
-
-    #Using arbitrary values i found online, will need to figure out later
-    def move_cost(self, other):
-        diagonal = abs(self.x - other.x) == 1 and abs(self.y - other.y) == 1
-        return 14 if diagonal else 10
-
-#Graph is basically (AStarGridNode,obstacle='y','n')
-def make_graph(width, height):
-    nodes = [[((AStarGridNode(x, y)), 0) for y in range(height)] for x in range(width)]
-    graph = {}
-    for x, y in product(range(width), range(height)):
-        node = nodes[x][y][0]
-        graph[node] = []
-        #I wrote it this way to allow for easy expanding to 8 directional movement (diagonals), rn its N,S,W,E
-        for i, j in product([-1, 0, 1], [-1, 0, 1]):
-            if not (0 <= x + i < width):
-                continue
-            if not (0 <= y + j < height):
-                continue
-            if (abs(i) == abs(j)):
-                continue
-            graph[nodes[x][y][0]].append(nodes[x+i][y+j][0])
-    return graph, nodes
+    for i in xrange(numRows):
+        for j in xrange(numCols):
+            weight = 1 #+ random.randint(0,1)
+            res.append((i,j,"empty", weight))
+    return res
 
 
+#Just makes sure we're inside the grid
+def inBounds(row,col, numRows, numCols):
+    return row >= 0 and col >= 0 and row < numRows and col < numCols
 
-g,n = make_graph(9,9)
-paths = AStarGrid(g)
-start = n[0][0][0]
-end = n[7][8][0]
+#Given a node (x,y), finds the neighbors of this node. For our purposes, only 4 
+#such neighbors, up down left right (no diagnals for now)
+def neighbors(graph, numRows, numCols):
+    neighbors = dict()
+    
+    dirs = [(0,1), (0,-1), (1,0), (-1,0)]
+    for node in graph:
+        neighbors[node] = set()
+        for (x,y) in dirs:
+            cr,cc = node[0] + x, node[1] + y
+            if inBounds(cr,cc,numRows, numCols):
+                neighbors[node].add(graph[numCols*cr + cc])
 
-shortestPath = paths.search(start,end)
+    return neighbors
 
-res = []
-for node in shortestPath:
-    res.append((node.x,node.y))
+#Heuristic function for manhatten distance
+def heuristic(node1, node2):
 
-print res
+    (x1,y1) = node1[0], node1[1]
+    (x2,y2) = node2[0], node2[1]
+
+    return abs(x1-x2) + abs(y1-y2)
+
+
+def cost(node1, node2):
+    #Just return the cost of going to this node (we can make this more advanced later)
+    return node2[3]
+
+#Astar search algorithm, keeps iterating until no more nodes to explore/reached the end
+def astar_search(graph, neighbors, start, end):
+    frontier = PriorityQueue()
+    frontier.put(start, 0)
+    came_from = {}
+    cost_so_far = {}
+
+    came_from[start] = None
+    cost_so_far[start] = 0
+
+    while (not frontier.empty()):
+        current = frontier.get()
+
+        if (current == end):
+            break
+
+        for n in neighbors[current]:
+            new_cost = cost_so_far[current] + cost(current, n)
+
+            if ((new_cost < 1000) and ((n not in cost_so_far) or (new_cost < cost_so_far[n]))):
+                cost_so_far[n] = new_cost
+                priority = new_cost + heuristic(end, n)
+                frontier.put(n, priority)
+                came_from[n] = current
+
+    return came_from
+
+
+#Given the path returned by astar, just adds to a list to make it a nice readable path
+def generate_path(path, end):
+    res = []
+    res.append(end)
+
+    curr = path[end]
+
+
+    while (curr != None):
+        res.append(curr)
+        curr = path[curr]
+
+    res.pop()
+    return res
+
+#Basically does two things, first updates the Node weight in our graph representation (list)
+#Then also updates the neighbors "understanding" of the current node (e.g updates the weights in the neighbor lists)
+#I can definitely make this better, will try soon
+def updateWeight(index, node, g,n, w, numRows, numCols):
+    original = node
+    temp = list(g[index])
+    temp[3] = w
+    new = tuple(temp)
+    g[index] = new
+
+    newNode = g[index]
+    n[newNode] = n.pop(node)
+
+    dirs = [(0,1), (0,-1), (1,0), (-1,0)]
+    for (x,y) in dirs:
+        cr,cc = newNode[0] + x, newNode[1] + y
+        if (inBounds(cr,cc, numRows, numCols)):
+            nIndex = numRows*cr + cc
+            neighborNode = g[nIndex]
+
+            neighbors = n[neighborNode]
+            if (original in neighbors):
+                neighbors.remove(original)
+                neighbors.add(newNode)
+                n[neighborNode] = neighbors
+
+    return g,n
+
+
+#Given the current and new locations, and the orientation, returns some motor_api
+#call that instructs the robot to move accordingly, at the end will update the orientation
+def motion_plan(curr, new, orientation):
+    return "N"
+    
+
+
+
+#Main loop, basically just infinite loops until we reach ending path
+#It gets the route, extracts the next move, motion plans said move
+#Updates obstacles if necessary, and repeats until reach goal
+def main():
+    numRows = 9
+    numCols = 9
+    g = make_graph(numRows, numCols)
+    n = neighbors(g, numRows, numCols)
+    start = g[0]
+    end = g[70]
+
+    curr = start
+    count = 1
+
+    res = []
+    i= 0
+
+    currentOrientation = "N"
+
+    while (curr != end):
+        
+        #Plan new route, assuming new information given
+        p = astar_search(g, n, curr,end)
+        path = generate_path(p, end)
+
+        #Add the next node we're taking to the result, the next node to take is at the end of the list
+        res.append(curr)
+        new = path[-1]
+
+        #Use robot API to maneuver, given current orientation and nodes to go to
+        newOrientation = motion_plan(curr, new, currentOrientation)
+        
+        #Update states
+        curr = new
+        currentOrientation = newOrientation
+
+
+        if (i == 1):
+            g,n = updateWeight(4, g[4], g , n, 1000, numRows, numCols)
+            pass
+        elif (i == 4):
+            g,n = updateWeight(60, g[60], g , n, 1000, numRows, numCols)
+            g,n = updateWeight(61, g[61], g , n, 1000, numRows, numCols)
+            pass
+        elif (i == 7):
+            g,n = updateWeight(69, g[69], g , n, 1000, numRows, numCols)
+            pass
+        i +=1
+
+    res.append(end)
+
+    #print g[60]
+
+    print res
+
+
+main()
