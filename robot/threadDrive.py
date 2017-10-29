@@ -87,7 +87,7 @@ class motor(object):
             clippedErr = clip(pidOut)
             self.rot(clippedErr)
             prevErr = pErr
-            print(prevErr, self.out1)
+            print(pErr, self.out1)
 
 def forward(ticks):
     A = motor(3, 5, 12, 16, ticks)
@@ -101,7 +101,7 @@ def forward(ticks):
         threadL.append(t)
         t.start()
     for t in threadL:
-        t.join(6)
+        t.join()
 
 def cw90():
     A = motor(3, 5, 12, 16, 1060)
@@ -136,8 +136,8 @@ threadL = []
 # Numbers are rpi ports not gpio
 # A/B and C/D have ports flipped since orientation flipped
 
-# forward(2900)
-cw90()
+forward(2900)
+# cw90()
 
 gpio.cleanup()
 
