@@ -107,12 +107,10 @@ def forward(ticks):
 
 
 
-
-
 # Numbers are rpi ports not gpio
 # A/B and :C/D have ports flipped since orientation flipped
-gpio.setmode(gpio.BOARD)
-
-forward(-2800)
-gpio.cleanup()
+if __name__ == '__main__':
+    gpio.setmode(gpio.BOARD)
+    forward(-2800)
+    gpio.cleanup()
 

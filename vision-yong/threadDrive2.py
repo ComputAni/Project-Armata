@@ -79,8 +79,6 @@ class motor(object):
     def workerMethod(self):
         prevErr = 0
         iErr = 0
-        if (self.out1 == 21):
-            self.dest = - self.dest
         while (abs(self.curr - self.dest) > cutoff):
             self.pErr = self.dest - self.curr
             dErr = self.pErr - prevErr
@@ -89,8 +87,8 @@ class motor(object):
             clippedErr = clip(pidOut)
             self.rot(clippedErr)
             prevErr = self.pErr
-            if (threading.active_count() < 5):
-                break
+            # if (threading.active_count() < 5):
+            #     break
 
 
 def forward(ticks):
@@ -109,12 +107,10 @@ def forward(ticks):
 
 
 
-
-
 # Numbers are rpi ports not gpio
 # A/B and :C/D have ports flipped since orientation flipped
-gpio.setmode(gpio.BOARD)
-
-forward(-2800)
-gpio.cleanup()
+if __name__ == '__main__':
+    gpio.setmode(gpio.BOARD)
+    forward(-2800)
+    gpio.cleanup()
 

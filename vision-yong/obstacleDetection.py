@@ -113,18 +113,4 @@ def getDistance(knownDistance, knownWidthPx, imagePath, count):
 	cv2.imwrite(fileName, image)
 
 	return inches
-if __name__ == "__main__":
-    knownDistance, knownWidthPx = calibrateObstacle()
-
-    IMAGE_PATHS = ['obstacle12.jpg', 'obstacle15.jpg', 'obstacle30.jpg', 'obstacle48.jpg', 'obstacle60.jpg', 'obstacle84.jpg']
-    count = 1
-
-    # loop over the images
-    for imagePath in IMAGE_PATHS:
-            # load the image, find the marker in the image, then compute the
-            # distance to the marker from the camera
-            
-            print getDistance(knownDistance, knownWidthPx, imagePath, count)
-
-            count += 1
 
