@@ -19,7 +19,7 @@ https://stackoverflow.com/questions/28201667/killing-or-stopping-an-active-threa
 
 '''
 
-cutoff = 20
+cutoff = 20 
 Kp = 1
 Kd = 0.6
 Ki = 0
@@ -80,21 +80,23 @@ class motor(object):
         prevErr = 0
         iErr = 0
         while (abs(self.curr - self.dest) > cutoff):
-            pErr = self.dest - self.curr
-            dErr = pErr - prevErr
-            iErr += pErr 
-            pidOut = (Kp * pErr) + (Kd * dErr) + (Ki * iErr)
+            self.pErr = self.dest - self.curr
+            dErr = self.pErr - prevErr
+            iErr += self.pErr 
+            pidOut = (Kp * self.pErr) + (Kd * dErr) + (Ki * iErr)
             clippedErr = clip(pidOut)
             self.rot(clippedErr)
-            prevErr = pErr
-            print(pErr, self.out1)
+            prevErr = self.pErr
+            doneMotors = 0
+            if (threading.active_count() < 4):
+                break
 
 def forward(ticks):
-    A = motor(3, 5, 12, 16, ticks)
-    B = motor(7, 11, 18, 22, ticks)
-    C = motor(15, 13, 26, 24, ticks)
-    D = motor(21, 19, 36, 32, ticks)
-    motorL = [A, B, C, D]
+    a = motor(3, 5, 12, 16, ticks)
+    b = motor(7, 11, 18, 22, ticks)
+    c = motor(15, 13, 26, 24, ticks)
+    d = motor(21, 19, 36, 32, ticks)
+    motorL = [a, b, c, d]
     threadL = []
     for mot in motorL:
         t = threading.Thread(target=mot.workerMethod)
@@ -104,8 +106,8 @@ def forward(ticks):
         t.join()
 
 def cw90():
-    A = motor(3, 5, 12, 16, 1060)
-    B = motor(7, 11, 18, 22, 1060)
+    A = motor(3, 5, 12, 16, 1000)
+    B = motor(7, 11, 18, 22, 1000)
     C = motor(13, 15, 24, 26, 1000)
     D = motor(19, 21, 32, 36, 1000)
     motorL = [A, B, C, D]
@@ -115,29 +117,40 @@ def cw90():
         threadL.append(t)
         t.start()
     for t in threadL:
-        t.join(5)
+        t.join()
 
 def ccw90():
-    A = motor(5, 3, 16, 12, 1060)
-    B = motor(11, 7, 22, 18, 1060)
+    A = motor(5, 3, 16, 12, 1000)
+    B = motor(11, 7, 22, 18, 1000)
     C = motor(15, 13, 26, 24, 1000)
     D = motor(21, 19, 36, 32, 1000)
     motorL = [A, B, C, D]
     threadL = []
     for mot in motorL:
-        t = threading.Thread(function=mot.workerMethod)
+        t = threading.Thread(target=mot.workerMethod)
         threadL.append(t)
         t.start()
     for t in threadL:
         t.join(5)
 
-gpio.setmode(gpio.BOARD)
-threadL = []
+def pivCW():
+    gpio.setmode(gpio.BOARD)
+    forward(110)
+    gpio.cleanup()
+    gpio.setmode(gpio.BOARD)
+    cw90()
+    gpio.cleanup()
+
+def pivCCW():
+    gpio.setmode(gpio.BOARD)
+    forward(110)
+    gpio.cleanup()
+    gpio.setmode(gpio.BOARD)
+    ccw90()
+    gpio.cleanup()
+
 # Numbers are rpi ports not gpio
 # A/B and C/D have ports flipped since orientation flipped
-
-forward(2900)
-# cw90()
-
-gpio.cleanup()
+pivCW()
+pivCCW()
 
