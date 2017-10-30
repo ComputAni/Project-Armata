@@ -108,10 +108,10 @@ def forward(motorL):
 
 def cw(motorL):
     threadL = []
-    motorL[0].dest = 4000
-    motorL[1].dest = 4000
-    motorL[2].dest = -4000
-    motorL[3].dest = -4000
+    motorL[0].dest = 2400
+    motorL[1].dest = 2400
+    motorL[2].dest = -2400
+    motorL[3].dest = -2400
     for mot in motorL:
         mot.restartCnt()
         t = threading.Thread(target=mot.workerMethod)
@@ -122,10 +122,10 @@ def cw(motorL):
 
 def ccw(motorL):
     threadL = []
-    motorL[0].dest = -4000
-    motorL[1].dest = -4000
-    motorL[2].dest = 4000
-    motorL[3].dest = 4000
+    motorL[0].dest = -2400
+    motorL[1].dest = -2400
+    motorL[2].dest = 2400
+    motorL[3].dest = 2400
     for mot in motorL:
         mot.restartCnt()
         t = threading.Thread(target=mot.workerMethod)
