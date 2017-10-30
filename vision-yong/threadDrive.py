@@ -120,6 +120,19 @@ def cw(motorL):
     for t in threadL:
         t.join()
 
+def ccw(motorL):
+    threadL = []
+    motorL[0].dest = -4000
+    motorL[1].dest = -4000
+    motorL[2].dest = 4000
+    motorL[3].dest = 4000
+    for mot in motorL:
+        mot.restartCnt()
+        t = threading.Thread(target=mot.workerMethod)
+        threadL.append(t)
+        t.start()
+    for t in threadL:
+        t.join()
 
 # Numbers are rpi ports not gpio
 # A/B and C/D have ports flipped since orientation flipped

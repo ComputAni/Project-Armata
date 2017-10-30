@@ -11,8 +11,12 @@ b = threadDrive.motor(7, 11, 18, 22)
 c = threadDrive.motor(15, 13, 26, 24)
 d = threadDrive.motor(21, 19, 36, 32)
 motorL = [a, b, c, d]
-threadDrive.cw(motorL)
+threadDrive.ccw(motorL)
 threadDrive.forward(motorL)
+threadDrive.cw(motorL)
+for i in range(4):
+    threadDrive.forward(motorL)
+threadDrive.cw(motorL)
 threadDrive.forward(motorL)
 gpio.cleanup()
 
