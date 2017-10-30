@@ -268,7 +268,7 @@ def main():
     n = neighbors(g, numRows, numCols)
 
     start = g[0][2]
-    end = g[5][2]
+    end = g[4][2]
 
     curr = start
     res = []
@@ -276,7 +276,7 @@ def main():
 
     currentOrientation = "N"
 
-    update_weight(4,2,g,n, 1000, numRows, numCols)
+    update_weight(3,2,g,n, 1000, numRows, numCols)
 
     #print_neighbors(n,numRows,numCols)
     #print_graph(g, numRows, numCols)
