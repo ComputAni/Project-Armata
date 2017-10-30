@@ -4,6 +4,7 @@ from Queue import PriorityQueue
 import copy
 import random
 
+
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
 
@@ -143,6 +144,8 @@ def motion_plan(curr, new, orientation):
 
     delta = (deltaX,deltaY)
 
+    print delta
+
     #Going north
     if (delta == (1,0)):
         if (orientation == "N"):
@@ -260,12 +263,12 @@ def print_node(n):
 #Updates obstacles if necessary, and repeats until reach goal
 def main():
     numRows = 9
-    numCols = 9
+    numCols = 4
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
 
-    start = g[0][0]
-    end = g[7][7]
+    start = g[0][2]
+    end = g[4][2]
 
     curr = start
     res = []
@@ -273,13 +276,10 @@ def main():
 
     currentOrientation = "N"
 
-    update_weight(1,1,g,n, 1000, numRows, numCols)
-    update_weight(0,1,g,n,1000,numRows, numCols)
-    update_weight(2,2,g,n,1000,numRows, numCols)
-    update_weight(5,7,g,n,1000, numRows, numCols)
+    update_weight(3,2,g,n, 1000, numRows, numCols)
 
-    print_neighbors(n,numRows,numCols)
-    print_graph(g, numRows, numCols)
+    #print_neighbors(n,numRows,numCols)
+    #print_graph(g, numRows, numCols)
 
 
     print "Starting at: ", print_node(curr)
