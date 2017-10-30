@@ -33,7 +33,7 @@ def clip(diff):
         return diff
 
 class motor(object):
-    def __init__(self, out1, out2, in1, in2, dest):
+    def __init__(self, out1, out2, in1, in2, dest=5600):
         gpio.setup(out1, gpio.OUT)
         gpio.setup(out2, gpio.OUT)
         gpio.setup(in1, gpio.IN, pull_up_down=gpio.PUD_UP)
@@ -94,9 +94,24 @@ class motor(object):
                 break
 
 
-def forward(ticks):
+def forward(motorL):
     threadL = []
-    global motorL
+    ticks = 5600
+    for mot in motorL:
+        mot.restartCnt()
+        mot.dest = 5600
+        t = threading.Thread(target=mot.workerMethod)
+        threadL.append(t)
+        t.start()
+    for t in threadL:
+        t.join()
+
+def cw(motorL):
+    threadL = []
+    motorL[0].dest = 4000
+    motorL[1].dest = 4000
+    motorL[2].dest = -4000
+    motorL[3].dest = -4000
     for mot in motorL:
         mot.restartCnt()
         t = threading.Thread(target=mot.workerMethod)
@@ -110,18 +125,4 @@ def forward(ticks):
 # A/B and C/D have ports flipped since orientation flipped
 # pivCW()
 # pivCCW()
-ticks = 5600
-gpio.setmode(gpio.BOARD)
-a = motor(3, 5, 40, 16, ticks)
-b = motor(7, 11, 18, 22, ticks)
-c = motor(15, 13, 26, 24, ticks)
-d = motor(21, 19, 36, 32, ticks)
-motorL = [a, b, c, d]
-
-for i in range(3):
-    forward(5600)
-    print('next')
-gpio.cleanup()
-# pivCCW()
-# forward(2800)
 

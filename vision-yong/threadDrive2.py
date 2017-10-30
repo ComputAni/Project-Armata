@@ -89,6 +89,7 @@ class motor(object):
             prevErr = self.pErr
             # if (threading.active_count() < 5):
             #     break
+            print(self.curr, self.out1)
 
 
 def forward(ticks):

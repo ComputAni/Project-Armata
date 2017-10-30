@@ -1,16 +1,19 @@
 import cv2
 import obstacleDetection
-import threadDrive2
+import threadDrive
 import RPi.GPIO as gpio
 
-knownDist, knownWidthPx = obstacleDetection.calibrateObstacle()
-print(knownDist, knownWidthPx)
+# knownDist, knownWidthPx = obstacleDetection.calibrateObstacle()
+# print(knownDist, knownWidthPx)
+gpio.setmode(gpio.BOARD)
+a = threadDrive.motor(3, 5, 40, 16)
+b = threadDrive.motor(7, 11, 18, 22)
+c = threadDrive.motor(15, 13, 26, 24)
+d = threadDrive.motor(21, 19, 36, 32)
+motorL = [a, b, c, d]
+threadDrive.cw(motorL)
+threadDrive.forward(motorL)
+threadDrive.forward(motorL)
+gpio.cleanup()
 
-# gpio.setmode(gpio.BOARD)
-# threadDrive2.forward(1000)
-# gpio.cleanup()
-
-camera = cv2.VideoCapture(0)
-_, image = camera.read()
-cv2.imwrite('captured.jpg', image)
-
+# print(obstacleDetection.getDistance(knownDist, knownWidthPx, 'captured.jpg', 1))

@@ -35,7 +35,8 @@ def findObject(image, count):
 
 		# Get the contour with the largest perimeter that has 4 sides
 		if (len(approx) == 4) and (perimeter > maxPerimeter):
-			maxPerimeter = perimeter
+                #if(perimeter > maxPerimeter):
+                        maxPerimeter = perimeter
 			mainCnt = cnt
 
 	# compute the bounding box of the of the paper region and return it
