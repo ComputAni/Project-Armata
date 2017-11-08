@@ -150,17 +150,23 @@ def motion_plan(curr, new, orientation):
     if (delta == (1,0)):
         if (orientation == "N"):
             #Go straight, since we're already facing this direction
+            print "forward"
             move_forward()
             pass
         elif (orientation == "S"):
+            print "backward"
             move_backward()
             pass
         elif (orientation == "W"):
+            print "cw"
             rotate_cw()
+            print "forward"
             move_forward()
             pass
         elif (orientation == "E"):
+            print "ccw"
             rotate_ccw()
+            print "forward"
             move_forward()
             pass
         else:
