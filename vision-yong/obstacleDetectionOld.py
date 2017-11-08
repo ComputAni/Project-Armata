@@ -5,39 +5,26 @@ import copy
 # Find the obstacle in the image
 def findObject(image, count):
 
-	hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+	# threshold the image to detect darker colors
+	ret,thresh = cv2.threshold(image,127,255,cv2.THRESH_TRUNC)
 
-	#color = np.uint8([[[196, 114, 68]]])
-	color = np.uint8([[[100, 81, 54]]])
-	#color = np.uint8([[[159, 88, 183]]])
-        hsv_color = cv2.cvtColor(color, cv2.COLOR_BGR2HSV)
-	hue = hsv_color[0][0][0]
-
-	lower_range = np.array([hue-100, 50, 50], dtype=np.uint8)
-	upper_range = np.array([hue+100, 225, 225], dtype=np.uint8)
-
-	mask = cv2.inRange(hsv, lower_range, upper_range)
-	#mask = cv2.inRange(hsv, hsv_color, hsv_color)
-        fileName = "results/mask" + str(count) + ".png"
-	cv2.imwrite(fileName, mask)
-
-	gray = cv2.GaussianBlur(mask, (9, 9), 0)
-	edged = cv2.Canny(gray, 50, 150)
+	# Save the threshold image for debugging purposes
+	fileName = "results/threshold" + str(count) + ".png"
+	cv2.imwrite(fileName, thresh)
+	
+	# Convert the image to grayscale, apply a gaussian blur and the edge detector.
+	gray = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
+	gray = cv2.GaussianBlur(gray, (9, 9), 0)
+	edged = cv2.Canny(thresh, 50, 150)
 	
 	# Save the edges image for debugging purposes
-	fileName = "results/edged" + str(count) + ".png"
+	fileName = "results/findMarker" + str(count) + ".png"
 	cv2.imwrite(fileName, edged)
-
 	
 	# find the contours in the edged image and keep the largest one;
 	# we'll assume that this is our piece of paper in the image
-	(_,cnts,hierarchy) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+	(_,cnts,hierarchy) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 	
-	mask = cv2.drawContours(mask, cnts, -1, (0,255,0), 3)
-
-	fileName = "results/findMarker" + str(count) + ".png"
-	cv2.imwrite(fileName, mask)
-
 	maxPerimeter = 0
 	mainCnt = None
 	
@@ -46,17 +33,11 @@ def findObject(image, count):
 		perimeter = cv2.arcLength(cnt, True)
 		approx = cv2.approxPolyDP(cnt, 0.005 * perimeter, True)
 
-		area = cv2.contourArea(cnt)
-
 		# Get the contour with the largest perimeter that has 4 sides
-		#if (len(approx) == 4) and (perimeter > maxPerimeter):
-		
-		if(area > maxPerimeter):
-			maxPerimeter = area
-			mainCnt = cnt			
-		# if (perimeter > maxPerimeter):
-		# 	maxPerimeter = perimeter
-		# 	mainCnt = cnt
+		if (len(approx) == 4) and (perimeter > maxPerimeter):
+                #if(perimeter > maxPerimeter):
+                        maxPerimeter = perimeter
+			mainCnt = cnt
 
 	# compute the bounding box of the of the paper region and return it
 	return cv2.minAreaRect(mainCnt)
@@ -102,7 +83,7 @@ def distance_to_camera(knownDistance, knownWidthPx, width):
 
 def calibrateObstacle():
 	knownDistance = 24
-	image = cv2.imread('robotObstacle/obstacleCalibrate.png')
+	image = cv2.imread('obstacleCalibrate.png')
 	marker = findObject(image, 0)
 	box = np.int0(cv2.boxPoints(marker))
 	knownwidthPx = sortPoints(box)
@@ -133,18 +114,4 @@ def getDistance(knownDistance, knownWidthPx, imagePath, count):
 	cv2.imwrite(fileName, image)
 
 	return inches
-
-#knownDistance, knownWidthPx = calibrateObstacle()
-
-IMAGE_PATHS = ['obstacle12.png', 'obstacle15.png', 'obstacle24.png', 'obstacle30.png', 'obstacle36.png', 'obstacle48.png', 'obstacle60.png', 'obstacle72.png', 'obstacle84.png']
-count = 1
-
-# loop over the images
-#for imagePath in IMAGE_PATHS:
-	# load the image, find the marker in the image, then compute the
-	# distance to the marker from the camera
-	
-#	print getDistance(knownDistance, knownWidthPx, "robotObstacle/" + imagePath, count)
-
-#	count += 1
 

@@ -12,7 +12,7 @@ frame = None
 while True:
     _, frame = cap.read() # gets one frame from the webcam
     if frame is not  None:
-        cv2.imwrite('captured.jpg', frame)
+        cv2.imwrite('results/captured.png', frame)
         break
     else:
         cap.release()
