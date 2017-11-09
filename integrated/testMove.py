@@ -1,0 +1,23 @@
+import threadDrive
+import RPi.GPIO as gpio
+
+
+gpio.setmode(gpio.BOARD)
+a = threadDrive.motor(3, 5, 40, 16)
+b = threadDrive.motor(7, 11, 18, 22)
+c = threadDrive.motor(15, 13, 26, 24)
+d = threadDrive.motor(21, 19, 36, 32)
+motorL = [a, b, c, d]
+
+
+threadDrive.forward(motorL)
+threadDrive.forward(motorL)
+threadDrive.forward(motorL)
+threadDrive.cw(motorL)
+threadDrive.cw(motorL)
+threadDrive.forward(motorL)
+threadDrive.ccw(motorL)
+threadDrive.forward(motorL)
+threadDrive.forward(motorL)
+
+gpio.cleanup()
