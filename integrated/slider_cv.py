@@ -10,12 +10,12 @@ def findPoints(cnt):
     allArrays = []
     if len(cnt) > 0:
         for array in cnt:
-            total.append(cv2.arcLength(array, True))
+            total.append(cv2.contourArea(array))
             allArrays.append(array)
-        bigIndex = total.index(max(total))
-        return cv2.boundingRect(allArrays[bigIndex])
+        # Below, finds bounding rectangles of all contours that are greater than area 5000
+        return [cv2.boundingRect(allArrays[i]) for i in range(len(allArrays)) if total[i] > 5000]
     else:
-        return (None, None, None, None)
+        return []
 
 #dummy callback function for cv2.createTrackbar()
 def nothing(temp):
@@ -42,8 +42,9 @@ def boundingRect():
 
     cap.open(cam_index) # Enable the camera
     while True:
-        ret, frame = cap.read() # gets one frame from the webcam
-
+        
+        # ret, frame = cap.read() # gets one frame from the webcam
+        frame = cv2.imread("im0.png")
 
         #collect threshold values from sliders (set by user)
         thresholds = []
@@ -58,9 +59,10 @@ def boundingRect():
         threshold = cv2.inRange(hsv, lowerBound, upperBound)
 
         _, contours, hierarchy = cv2.findContours(threshold,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        x,y,w,h = findPoints(contours)
+        rectL = findPoints(contours)
 
-        if (x != None):
+        for rect in rectL:
+            x, y, w, h = rect 
             cv2.rectangle(frame, (x,y), (x+w, y+h), (0,255,0),5)
 
         cv2.imshow('Thresh', threshold)
