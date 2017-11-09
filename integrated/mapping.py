@@ -125,6 +125,7 @@ def update_weight(r,c,g,n,w, numRows, numCols):
 def move_forward():
     global motorL
     threadDrive.forward(motorL)
+    print("Moved Forward")
     return
 
 def move_backward():
@@ -133,11 +134,13 @@ def move_backward():
 def rotate_cw():
     global motorL
     threadDrive.cw(motorL)
+    print("Turned clockwise")
     return
 
 def rotate_ccw():
     global motorL
     threadDrive.ccw(motorL)
+    print("Turned counter-clockwise")
     return
 
 #Given the current and new locations, and the orientation, returns some motor_api
@@ -151,7 +154,7 @@ def motion_plan(curr, new, orientation):
 
     delta = (deltaX,deltaY)
 
-    print delta
+    # print delta
 
     #Going north
     if (delta == (1,0)):
