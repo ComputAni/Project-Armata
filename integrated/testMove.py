@@ -3,12 +3,11 @@ import RPi.GPIO as gpio
 
 
 gpio.setmode(gpio.BOARD)
-a = threadDrive.motor(22, 18, 16, 12)
-# b = threadDrive.motor(7, 11, 18, 22)
-# c = threadDrive.motor(15, 13, 26, 24)
-# d = threadDrive.motor(21, 19, 36, 32)
-# motorL = [a, b, c, d]
-motorL = [a]
+a = threadDrive.motor(18, 22, 12, 16)
+b = threadDrive.motor(38, 40, 32, 36)
+c = threadDrive.motor(31, 33, 35, 37)
+d = threadDrive.motor(3, 5, 7, 11)
+motorL = [a, b, c, d]
 
 
 threadDrive.forward(motorL)
