@@ -20,8 +20,8 @@ https://stackoverflow.com/questions/28201667/killing-or-stopping-an-active-threa
 '''
 
 cutoff = 20 
-Kp = 1
-Kd = 0.6
+Kp = 0.4
+Kd = 0.1
 Ki = 0
 
 def clip(diff):
@@ -90,11 +90,14 @@ class motor(object):
             clippedErr = clip(pidOut)
             self.rot(clippedErr)
             prevErr = self.pErr
-            if (threading.activeCount() < 5):
-                break
+            # if (threading.activeCount() < 5):
+            #     break
 
 
 def forward(motorL):
+    # mot = motorL[0]
+    # mot.dest = 5600
+    # mot.workerMethod()
     threadL = []
     ticks = 5600
     for mot in motorL:
