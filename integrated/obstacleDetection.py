@@ -148,3 +148,17 @@ count = 1
 
 #	count += 1
 
+
+'''
+1. Experimentally determine ratio of x-displacement to depth (R)
+(ie for specific depth d, and world coord x-displacement to reach edge of screen x
+R = x / d)
+2. For new depth D, the edge of the screen is X units away where X = D * R
+3. Assuming linear relationship between world coord and screen space
+the x-displacement of the centroid is X * (centroid_x_im / im_width)
+'''
+def getXcoord(depth, xPix):
+	xDepthRatio = 13.7 / 34 # Experimental ratio of x displacement to depth (world coord)
+	halfScreenW = 320
+	return xDepthRatio * depth * (xPix / float(halfScreenW))
+
