@@ -124,23 +124,25 @@ def update_weight(r,c,g,n,w, numRows, numCols):
 
 def move_forward():
     global motorL
-    threadDrive.forward(motorL)
+    threadDrive.forward(motorL, 5600)
     print("Moved Forward")
     return
 
 def move_backward():
+    threadDrive.forward(motorL, -5600)
+    print("Moved Backward")
     return
 
 def rotate_cw():
     global motorL
-    threadDrive.cw(motorL)
+    threadDrive.cw(motorL, 2400)
     print("Turned clockwise")
     return
 
 def rotate_ccw():
     global motorL
-    threadDrive.ccw(motorL)
-    print("Turned counter-clockwise")
+    threadDrive.cw(motorL, -2400)
+    print("Turned counter clockwise")
     return
 
 #Given the current and new locations, and the orientation, returns some motor_api

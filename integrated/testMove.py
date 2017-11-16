@@ -10,14 +10,9 @@ d = threadDrive.motor(3, 5, 7, 11)
 motorL = [a, b, c, d]
 
 
-threadDrive.forward(motorL)
-# threadDrive.forward(motorL)
-# threadDrive.forward(motorL)
-# threadDrive.cw(motorL)
-# threadDrive.cw(motorL)
-# threadDrive.forward(motorL)
-# threadDrive.ccw(motorL)
-# threadDrive.forward(motorL)
-# threadDrive.forward(motorL)
+threadDrive.forward(motorL, 5600)
+threadDrive.cw(motorL, 2400)
+threadDrive.cw(motorL, -2400)
+threadDrive.forward(motorL, -5600)
 
 gpio.cleanup()
