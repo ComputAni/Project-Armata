@@ -107,7 +107,9 @@ def featureDetector(img1, img2, img2Clr, times):
 
 	dst = 0
 
-	if len(good)>MIN_MATCH_COUNT:
+	print len(good)
+
+	if len(good) > MIN_MATCH_COUNT:
 	    src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
 	    dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
 
@@ -142,11 +144,13 @@ def featureDetector(img1, img2, img2Clr, times):
 def getFeatures(templateFileName, trainFileName, knownWidthPx, knownDistance):
 	img1 = cv2.imread(templateFileName, 0)          # queryImage
 	img2Clr = cv2.imread(trainFileName) # trainImage
-	img2Clr = cv2.resize(img2Clr, (0,0), fx = 0.125, fy = 0.125, interpolation = cv2.INTER_AREA);
+	img2Clr = cv2.resize(img2Clr, (0,0), fx = 1.0, fy = 1.0, interpolation = cv2.INTER_AREA);
 	img2 = cv2.cvtColor(img2Clr, cv2.COLOR_RGB2GRAY)
 
 	#boxCoordinates = featureDetector(templateFileName, trainFileName, 1)
 	boxCoordinates = featureDetector(img1, img2, img2Clr, 1)
+
+	print boxCoordinates
 
 	if boxCoordinates == []:
 		return (-1, -1)
@@ -175,7 +179,7 @@ def calibrateImage(templateFileName, trainFileName):
 
 	img1 = cv2.imread(templateFileName, 0)          # queryImage
 	img2Clr = cv2.imread(trainFileName) # trainImage
-	img2Clr = cv2.resize(img2Clr, (0,0), fx = 0.125, fy = 0.125, interpolation = cv2.INTER_AREA);
+	img2Clr = cv2.resize(img2Clr, (0,0), fx = 1.0, fy = 1.0, interpolation = cv2.INTER_AREA);
 	img2 = cv2.cvtColor(img2Clr, cv2.COLOR_RGB2GRAY)
 
 	boxCoordinates = featureDetector(img1, img2, img2Clr, 1)
@@ -188,11 +192,12 @@ def calibrateImage(templateFileName, trainFileName):
 	return widthPx
 
 
-knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'iPhoneCalibration.png')
+#knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'im2.png')
+knownWidthPx = 180.99
 knownDistance = 24
 
 print knownWidthPx
-(boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', 'iPhoneTest.png', knownWidthPx, knownDistance)
+(boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', 'im72.png', knownWidthPx, knownDistance)
 print distance
 print boxCoordinates
 
