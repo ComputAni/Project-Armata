@@ -5,6 +5,7 @@ import copy
 import random
 import threadDrive
 import RPi.GPIO as gpio
+from featureDetection import *
 
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
@@ -246,9 +247,29 @@ def motion_plan(curr, new, orientation):
     return newOrientation
 
 #CV Routine
-def obstacles():
-    return
+def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx):
+    global GRID_SIZE
 
+    image_file = take_image()
+    (boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', image_file, knownWidthPx, knownDistance)
+
+    print "Distance after feature detection: ", distance
+
+    obstacle_list = get_coordinates(boxCoordinates, distance)
+
+    for (i,(x,y)) in enumerate(obstacle_list):
+        #convert
+        obstacle_list[i] = (x / GRID_SIZE, y / GRID_SIZE)
+        pass
+
+    print "Detected obstacles: ", obstacle_list
+
+
+    for (x,y) in obstacle_list:
+        obstacle_X, obstacle_Y = (curr_X + x, curr_Y + y)
+        updateWeight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
+    
+    return
 
 def print_graph(g, numRows, numCols):
     for i in range(numRows):
@@ -273,9 +294,7 @@ def print_node(n):
 #Main loop, basically just infinite loops until we reach ending path
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
-def main():
-    numRows = 9
-    numCols = 4
+def main(numRows, numCols):
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
 
@@ -284,15 +303,12 @@ def main():
 
     curr = start
     res = []
-    i= 0
-
+    i = 0
+    
+    obstacle_weight = 1000
     currentOrientation = "N"
 
-    update_weight(3,2,g,n, 1000, numRows, numCols)
-
-    #print_neighbors(n,numRows,numCols)
-    #print_graph(g, numRows, numCols)
-
+    #update_weight(3,2,g,n, 1000, numRows, numCols)
 
     print "Starting at: ", print_node(curr)
     print "with orientation: ", currentOrientation
@@ -300,8 +316,7 @@ def main():
     while (curr != end):
 
         #Detect obstacles
-        obstacles()
-
+        obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx)
 
         #Plan new route, assuming new information given
         p = astar_search(g, n, curr,end)
@@ -329,11 +344,25 @@ def main():
 
     print print_res
 
+
+#Initialize motors
 gpio.setmode(gpio.BOARD)
 a = threadDrive.motor(18, 22, 12, 16)
 b = threadDrive.motor(38, 40, 32, 36)
 c = threadDrive.motor(31, 33, 35, 37)
 d = threadDrive.motor(3, 5, 7, 11)
 motorL = [a, b, c, d]
-main()
+
+#Calibrate camera subsystem
+knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'im2.png')
+#knownWidthPx = 180.99
+knownDistance = 24
+
+#Globals for the obstacle course
+NUM_OBSTACLES = 2
+GRID_SIZE = 24
+NUM_ROWS = 9
+NUM_COLS = 4
+
+main(numRows, numCols)
 gpio.cleanup()

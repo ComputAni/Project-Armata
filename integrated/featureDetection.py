@@ -193,13 +193,13 @@ def calibrateImage(templateFileName, trainFileName):
 
 
 #knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'im2.png')
-knownWidthPx = 180.99
-knownDistance = 24
+#knownWidthPx = 180.99
+#knownDistance = 24
 
-print knownWidthPx
-(boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', 'im72.png', knownWidthPx, knownDistance)
-print distance
-print boxCoordinates
+#print knownWidthPx
+#(boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', 'im72.png', knownWidthPx, knownDistance)
+#print distance
+#print boxCoordinates
 
 
 

@@ -280,6 +280,8 @@ def main():
     res = []
     i= 0
 
+    print curr
+
     currentOrientation = "N"
 
     update_weight(3,2,g,n, 1000, numRows, numCols)
