@@ -24,15 +24,32 @@ Kp = 1
 Kd = 0.5
 Ki = 0
 
-def clip(diff, out1):
+driveThreshold = 67
+rotThreshold = 85
+
+def forwardClip(diff, out1):
     if diff > 100:
         if (out1 == 18 or out1 == 38):
-            return 67
+            return driveThreshold
         else:
             return 100
     elif diff < -100:
         if (out1 == 18 or out1 == 38):
-            return -67
+            return -driveThreshold
+        else:
+            return -100
+    else:
+        return diff
+
+def rotClip(diff, out1):
+    if diff > 100:
+        if (out1 == 18 or out1 == 38):
+            return rotThreshold
+        else:
+            return 100
+    elif diff < -100:
+        if (out1 == 18 or out1 == 38):
+            return -rotThreshold
         else:
             return -100
     else:
@@ -93,7 +110,10 @@ class motor(object):
             dErr = self.pErr - prevErr
             iErr += self.pErr 
             pidOut = (Kp * self.pErr) + (Kd * dErr) + (Ki * iErr)
-            clippedErr = clip(pidOut, self.out1)
+            if self.isFoward:
+                clippedErr = forwardClip(pidOut, self.out1)
+            else:
+                clippedErr = rotClip(pidOut, self.out1)
             self.rot(clippedErr)
             prevErr = self.pErr
             if (threading.activeCount() < 5):
@@ -105,6 +125,7 @@ def forward(motorL, ticks=5600):
     for mot in motorL:
         mot.restartCnt()
         mot.dest = ticks
+        mot.isFoward = True
         t = threading.Thread(target=mot.workerMethod)
         threadL.append(t)
         t.start()
@@ -119,6 +140,7 @@ def cw(motorL, ticks=2400):
     motorL[3].dest = -ticks
     for mot in motorL:
         mot.restartCnt()
+        mot.isFoward = False
         t = threading.Thread(target=mot.workerMethod)
         threadL.append(t)
         t.start()
