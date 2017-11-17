@@ -20,15 +20,21 @@ https://stackoverflow.com/questions/28201667/killing-or-stopping-an-active-threa
 '''
 
 cutoff = 20 
-Kp = 0.2
-Kd = 0.05
+Kp = 1
+Kd = 0.5
 Ki = 0
 
-def clip(diff):
+def clip(diff, out1):
     if diff > 100:
-        return 100
+        if (out1 == 18 or out1 == 38):
+            return 67
+        else:
+            return 100
     elif diff < -100:
-        return -100
+        if (out1 == 18 or out1 == 38):
+            return -67
+        else:
+            return -100
     else:
         return diff
 
@@ -87,14 +93,14 @@ class motor(object):
             dErr = self.pErr - prevErr
             iErr += self.pErr 
             pidOut = (Kp * self.pErr) + (Kd * dErr) + (Ki * iErr)
-            clippedErr = clip(pidOut)
+            clippedErr = clip(pidOut, self.out1)
             self.rot(clippedErr)
             prevErr = self.pErr
             if (threading.activeCount() < 5):
                 break
 
 
-def forward(motorL, ticks):
+def forward(motorL, ticks=5600):
     threadL = []
     for mot in motorL:
         mot.restartCnt()
@@ -105,7 +111,7 @@ def forward(motorL, ticks):
     for t in threadL:
         t.join()
 
-def cw(motorL, ticks):
+def cw(motorL, ticks=2400):
     threadL = []
     motorL[0].dest = ticks
     motorL[1].dest = ticks
