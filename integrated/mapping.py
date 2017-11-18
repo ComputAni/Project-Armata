@@ -6,6 +6,7 @@ import random
 import threadDrive
 import RPi.GPIO as gpio
 from featureDetection import *
+from takeIm import takeIm
 
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
@@ -125,24 +126,24 @@ def update_weight(r,c,g,n,w, numRows, numCols):
 
 def move_forward():
     global motorL
-    threadDrive.forward(motorL, 5600)
+    threadDrive.forward(motorL, FORWARD_TICKS)
     print("Moved Forward")
     return
 
 def move_backward():
-    threadDrive.forward(motorL, -5600)
+    threadDrive.forward(motorL, BACKWARD_TICKS)
     print("Moved Backward")
     return
 
 def rotate_cw():
     global motorL
-    threadDrive.cw(motorL, 2400)
+    threadDrive.cw(motorL, CW_TICKS)
     print("Turned clockwise")
     return
 
 def rotate_ccw():
     global motorL
-    threadDrive.cw(motorL, -2400)
+    threadDrive.cw(motorL, CCW_TICKS)
     print("Turned counter clockwise")
     return
 
@@ -246,28 +247,53 @@ def motion_plan(curr, new, orientation):
 
     return newOrientation
 
+
+#Tuple of (x,y), normalizes to grid
+def box_round(coords):
+    (x,y) = coords
+
+    isNegX = -1 if (x < 0.0) else 1
+    isNegY = -1 if (y < 0.0) else 1
+
+    new_x = (int(abs(x)) + (GRID_SIZE / 2)) / GRID_SIZE
+    new_y = (int(abs(y)) + (GRID_SIZE / 2)) / GRID_SIZE
+
+    new_x = isNegX * new_x
+    new_y = isNegY * new_y
+
+    return (new_x, new_y)
+
+
 #CV Routine
 def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx):
-    global GRID_SIZE
+    global GRID_SIZE, IMAGE_COUNT
 
-    image_file = take_image()
-    (boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', image_file, knownWidthPx, knownDistance)
+    file_name = "im" + str(IMAGE_COUNT) + ".png"
+    takeIm(cap, 0, file_name)
+    IMAGE_COUNT += 1
+
+    (boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
 
     print "Distance after feature detection: ", distance
 
-    obstacle_list = get_coordinates(boxCoordinates, distance)
+    obstacle_list = []
+    for coord in boxCoordinates:
+        obstacle_list.append(getXcoord(distance, coord))   
 
     for (i,(x,y)) in enumerate(obstacle_list):
         #convert
-        obstacle_list[i] = (x / GRID_SIZE, y / GRID_SIZE)
-        pass
+        obstacle_list[i] = box_round(x,y)
 
-    print "Detected obstacles: ", obstacle_list
-
+    print "Detected %d obstacles" % len(obstacle_list)
+    print "Detected obstacles: " obstacle_list
 
     for (x,y) in obstacle_list:
         obstacle_X, obstacle_Y = (curr_X + x, curr_Y + y)
-        updateWeight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
+
+        print "Actual obstacle location: ", (obstacle_X, obstacle_Y)
+
+        if ((obstacle_X != curr_X) and (obstacle_Y != curr_Y)):
+            updateWeight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
     
     return
 
@@ -334,7 +360,7 @@ def main(numRows, numCols):
         curr = new
         currentOrientation = newOrientation
 
-
+        print_graph(g, numRows, numCols)
 
 
     res.append(end)
@@ -352,6 +378,11 @@ b = threadDrive.motor(38, 40, 32, 36)
 c = threadDrive.motor(31, 33, 35, 37)
 d = threadDrive.motor(3, 5, 7, 11)
 motorL = [a, b, c, d]
+CW_TICKS = 2150
+CCW_TICKS = -2200
+FORWARD_TICKS = 5600
+BACKWARD_TICKS = -5600
+
 
 #Calibrate camera subsystem
 knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'im2.png')
@@ -363,6 +394,13 @@ NUM_OBSTACLES = 2
 GRID_SIZE = 24
 NUM_ROWS = 9
 NUM_COLS = 4
+
+#Camera initialization
+cap = cv2.VideoCapture() # Video capture object
+cap.open(0) # Enable the camera
+IMAGE_COUNT = 0
+
+
 
 main(numRows, numCols)
 gpio.cleanup()
