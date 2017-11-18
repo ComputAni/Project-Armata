@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-MIN_MATCH_COUNT = 10
+MIN_MATCH_COUNT = 20
 
 
 # # Need to draw only good matches, so create a mask
@@ -68,6 +68,37 @@ def sortPoints(box):
 
 	return topRight[0] - topLeft[0]
 
+def getCoordPointsFromBox(box):
+
+  y = []
+
+  top = []
+
+  for i in xrange(len(box)):
+    #print box[i]
+    y.append(box[i][1])
+
+  yMean = sum(y) / len(y)
+
+  for i in xrange(len(box)):
+
+    if (box[i][1] < yMean):
+      top.append(box[i])
+
+  topLeft = ()
+  topRight = ()
+
+  if top[0][0] < top[1][0]:
+    topLeft = top[0]
+    topRight = top[1]
+  else:
+    topLeft = top[1]
+    topRight = top[0]
+
+  #print (topLeft[0], topLeft[1], topRight[0] - topLeft[0])
+
+
+  return (topLeft[0], topLeft[1], topRight[0] - topLeft[0])
 
 # Get the distance given 
 def distance_to_camera(knownDistance, knownWidthPx, width):
@@ -152,8 +183,8 @@ def getFeatures(templateFileName, trainFileName, knownWidthPx, knownDistance):
 
 	print boxCoordinates
 
-	if boxCoordinates == []:
-		return (-1, -1)
+	#if boxCoordinates == []:
+	#	return (-1, -1)
 
 	returnBoxCoordinates = []
 	distances = []
@@ -201,6 +232,7 @@ the x-displacement of the centroid is X * (centroid_x_im / im_width)
 '''
 def getXcoord(depth, bbox):
 	cx = 320 # center of the screen
+	print(bbox[0], bbox[2], cx)
 	xPix = bbox[0] + bbox[2] - cx
 	xDepthRatio = 13.7 / 34 # Experimental ratio of x displacement to depth (world coord)
 	halfScreenW = 320

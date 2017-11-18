@@ -272,30 +272,40 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
     takeIm(cap, 0, file_name)
     IMAGE_COUNT += 1
 
-    (boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
+    (boxCoordinates, distances) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
 
-    print "Distance after feature detection: ", distance
+    print "Distance after feature detection: ", distances
 
     obstacle_list = []
-    for coord in boxCoordinates:
-        obstacle_list.append(getXcoord(distance, coord))   
+    # for (i,coord) in enumerate(boxCoordinates):
+    #     points = getCoordPointsFromBox(coord)
+    #     obstacle_list.append(getXcoord(distances[i], points))
+    print "boxCoordinates: ", boxCoordinates, len(boxCoordinates) 
+    for i in xrange(len(boxCoordinates)):
+        #print boxCoordinates[i]
+        points = getCoordPointsFromBox(boxCoordinates[i])
+        print points
+        obstacle_list.append(getXcoord(distances[i], points)) 
+
+    print "obstacle_list", obstacle_list
 
     for (i,(x,y)) in enumerate(obstacle_list):
         #convert
-        obstacle_list[i] = box_round(x,y)
+        obstacle_list[i] = box_round((x,y))
 
     print "Detected %d obstacles" % len(obstacle_list)
-    print "Detected obstacles: " obstacle_list
+    print "Detected obstacles: ", obstacle_list
 
     for (x,y) in obstacle_list:
         obstacle_X, obstacle_Y = (curr_X + x, curr_Y + y)
 
         print "Actual obstacle location: ", (obstacle_X, obstacle_Y)
 
-        if ((obstacle_X != curr_X) and (obstacle_Y != curr_Y)):
-            updateWeight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
+        if ((obstacle_X != curr_X) or (obstacle_Y != curr_Y)):
+            print "Updating weight"
+            g,n = update_weight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
     
-    return
+    return g,n
 
 def print_graph(g, numRows, numCols):
     for i in range(numRows):
@@ -342,7 +352,7 @@ def main(numRows, numCols):
     while (curr != end):
 
         #Detect obstacles
-        obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx)
+        g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx)
 
         #Plan new route, assuming new information given
         p = astar_search(g, n, curr,end)
@@ -359,6 +369,8 @@ def main(numRows, numCols):
         #Update states
         curr = new
         currentOrientation = newOrientation
+
+        print "After algorithms, current: " , curr.row, curr.col, currentOrientation, end.row, end.col
 
         print_graph(g, numRows, numCols)
 
@@ -385,7 +397,7 @@ BACKWARD_TICKS = -5600
 
 
 #Calibrate camera subsystem
-knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'im2.png')
+knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
 knownDistance = 24
 
@@ -398,9 +410,9 @@ NUM_COLS = 4
 #Camera initialization
 cap = cv2.VideoCapture() # Video capture object
 cap.open(0) # Enable the camera
-IMAGE_COUNT = 0
+IMAGE_COUNT = 1
 
 
 
-main(numRows, numCols)
+main(NUM_ROWS, NUM_COLS)
 gpio.cleanup()
