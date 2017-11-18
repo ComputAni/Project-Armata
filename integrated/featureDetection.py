@@ -231,12 +231,11 @@ R = x / d)
 the x-displacement of the centroid is X * (centroid_x_im / im_width)
 '''
 def getXcoord(depth, bbox):
-	cx = 320 # center of the screen
+	cx = 480 # center of the screen
 	print(bbox[0], bbox[2], cx)
 	xPix = bbox[0] + bbox[2] - cx
 	xDepthRatio = 13.7 / 34 # Experimental ratio of x displacement to depth (world coord)
-	halfScreenW = 320
-	return (depth, xDepthRatio * depth * (xPix / float(halfScreenW))) #returns tuple of x-displacement and y-disp (depth)
+	return (depth, xDepthRatio * depth * (xPix / float(cx))) #returns tuple of x-displacement and y-disp (depth)
   
 
 

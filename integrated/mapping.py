@@ -6,7 +6,7 @@ import random
 import threadDrive
 import RPi.GPIO as gpio
 from featureDetection import *
-from takeIm import takeIm
+from test_image import takeIm
 
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
@@ -269,7 +269,7 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
     global GRID_SIZE, IMAGE_COUNT
 
     file_name = "im" + str(IMAGE_COUNT) + ".png"
-    takeIm(cap, 0, file_name)
+    takeIm(file_name)
     IMAGE_COUNT += 1
 
     (boxCoordinates, distances) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
@@ -399,7 +399,7 @@ BACKWARD_TICKS = -5600
 #Calibrate camera subsystem
 knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
-knownDistance = 24
+knownDistance = 36
 
 #Globals for the obstacle course
 NUM_OBSTACLES = 2

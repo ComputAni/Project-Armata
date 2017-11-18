@@ -10,7 +10,7 @@ def takeIm(cap, camIndex, filename):
     while True:
         _, frame = cap.read() # gets one frame from the webcam
         if frame is not  None:
-            if cnt < 20:
+            if cnt < 15:
                 cnt += 1
             else:
                 cv2.imwrite(filename, frame)
