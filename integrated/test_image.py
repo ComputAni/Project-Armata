@@ -5,11 +5,14 @@ import cv2
  
  # initialize the camera and grab a reference to the raw camera capture
 
-def takeIm(file_name, camera, rawCapture):
+def takeIm(file_name):
     # allow the camera to warmup
-    #time.sleep(0.1)
-    print "camera: ", camera
-    print "rawCapture: ", rawCapture
+    camera = PiCamera()
+    rawCapture = PiRGBArray(camera)
+    time.sleep(.1)
+
+    #print "camera: ", camera
+    #print "rawCapture: ", rawCapture
        
     # grab an image from the camera
     camera.capture(rawCapture, format="bgr")

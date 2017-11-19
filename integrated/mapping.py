@@ -262,10 +262,10 @@ def box_round(coords):
 
 #CV Routine
 def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx):
-    global GRID_SIZE, IMAGE_COUNT, CAMERA, RAWCAPTURE
+    global GRID_SIZE, IMAGE_COUNT
 
     file_name = "im" + str(IMAGE_COUNT) + ".png"
-    takeIm(file_name, CAMERA, RAWCAPTURE)
+    takeIm(file_name)
     IMAGE_COUNT += 1
 
     (boxCoordinates, distances) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
@@ -414,9 +414,6 @@ BACKWARD_TICKS = -5600
 knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
 knownDistance = 24
-CAMERA = PiCamera()
-RAWCAPTURE = PiRGBArray(CAMERA)
-time.sleep(.1)
 
 
 #Globals for the obstacle course
