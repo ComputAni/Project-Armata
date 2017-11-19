@@ -22,4 +22,4 @@ def takeIm(file_name):
     cv2.imwrite(file_name, img)
     camera.close()
 
-# takeIm("calibrate.png")
+#takeIm("calibrate.png")

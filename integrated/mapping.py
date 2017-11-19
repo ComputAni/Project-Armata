@@ -397,7 +397,7 @@ BACKWARD_TICKS = -5600
 #Calibrate camera subsystem
 knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
-knownDistance = 36
+knownDistance = 24
 
 #Globals for the obstacle course
 NUM_OBSTACLES = 2
