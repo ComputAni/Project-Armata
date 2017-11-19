@@ -391,9 +391,9 @@ def main(numRows, numCols,start, end):
 
 
 def cleanup():
-    global CAMERA
+    #global CAMERA
 
-    CAMERA.close()
+    #CAMERA.close()
     gpio.cleanup()
 
 ######GLOBALS AND CONSTANTS INITIALIZATIONS

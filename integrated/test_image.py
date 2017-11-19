@@ -23,4 +23,6 @@ def takeIm(file_name):
     # display the image on screen and wait for a keypress
     cv2.imwrite(file_name, img)
 
+    camera.close()
+
 #takeIm("calibrate.png")
