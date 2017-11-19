@@ -413,6 +413,7 @@ BACKWARD_TICKS = -5600
 #Calibrate camera subsystem
 knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
+print knownWidthPx
 knownDistance = 24
 
 
