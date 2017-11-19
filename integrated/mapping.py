@@ -158,6 +158,8 @@ def motion_plan(curr, new, orientation):
 
     delta = (deltaX,deltaY)
 
+    turned = False
+
     # print delta
 
     #Going north
@@ -165,62 +167,53 @@ def motion_plan(curr, new, orientation):
         if (orientation == "N"):
             #Go straight, since we're already facing this direction
             move_forward()
-            pass
         elif (orientation == "S"):
             move_backward()
-            pass
         elif (orientation == "W"):
             rotate_cw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         elif (orientation == "E"):
             rotate_ccw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         else:
             move_forward()
-            pass
         newOrientation = "N"
     #Going east
     elif (delta == (0,1)):
         if (orientation == "N"):
             rotate_cw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         elif (orientation == "S"):
             rotate_ccw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         elif (orientation == "W"):
             move_backward()
-            pass
         elif (orientation == "E"):
             move_forward()
-            pass
         else:
             move_forward()
-            pass
         newOrientation = "E"
     #Going south
     elif (delta == (-1,0)):
         if (orientation == "N"):
             move_backward()
-            pass
         elif (orientation == "S"):
             move_forward()
-            pass
         elif (orientation == "W"):
             rotate_ccw()
-            move_forward()
-            pass
+            # move_forward()
+            turned = True
         elif (orientation == "E"):
             rotate_cw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         else:
             #Default to just go forward
             move_forward()
-            pass
 
         #Update orientation to face the direction of movement
         newOrientation = "S"
@@ -228,24 +221,21 @@ def motion_plan(curr, new, orientation):
     elif (delta == (0,-1)):
         if (orientation == "N"):
             rotate_ccw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         elif (orientation == "S"):
             rotate_cw()
-            move_forward()
-            pass
+            #move_forward()
+            turned = True
         elif (orientation == "W"):
             move_forward()
-            pass
         elif (orientation == "E"):
             move_backward()
-            pass
         else:
             move_forward()
-            pass
         newOrientation = "W"
 
-    return newOrientation
+    return (newOrientation, turned)
 
 
 #Tuple of (x,y), normalizes to grid
@@ -358,21 +348,26 @@ def main(numRows, numCols):
         p = astar_search(g, n, curr,end)
         path = generate_path(p, end)
 
-        #Add the next node we're taking to the result, the next node to take is at the end of the list
-        res.append(curr)
+        #The next node to take is at the end of the list
         new = path[-1]
 
         #Use robot API to maneuver, given current orientation and nodes to go to
-        newOrientation = motion_plan(curr, new, currentOrientation)
+        (newOrientation, turned) = motion_plan(curr, new, currentOrientation)
         #print newOrientation
         
-        #Update states
-        curr = new
+        #Update states, if we don't turn, add current node to result list
+        #Update current to be newly planned node
+        if (not(turned)):
+            res.append(curr)
+            curr = new
+        else:
+            print "Turned!"
+
         currentOrientation = newOrientation
 
         print "After algorithms, current: " , curr.row, curr.col, currentOrientation, end.row, end.col
 
-        print_graph(g, numRows, numCols)
+        #print_graph(g, numRows, numCols)
 
 
     res.append(end)
