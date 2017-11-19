@@ -3,6 +3,7 @@ from itertools import product
 from Queue import PriorityQueue
 import copy
 import random
+import sys  
 
 
 #Orientations for the robot, facing N (default)
@@ -267,14 +268,19 @@ def print_node(n):
 #Main loop, basically just infinite loops until we reach ending path
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
-def main():
+def main(start, end):
     numRows = 9
     numCols = 4
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
 
-    start = g[0][2]
-    end = g[4][2]
+    start_x, start_y = start
+    end_x, end_y = end
+
+    start = g[start_x][start_y]
+    end = g[end_x][end_y]
+#    start = g[0][2]
+#    end = g[4][2]
 
     curr = start
     res = []
@@ -284,7 +290,7 @@ def main():
 
     currentOrientation = "N"
 
-    update_weight(3,2,g,n, 1000, numRows, numCols)
+    update_weight(1,2,g,n, 1000, numRows, numCols)
 
     #print_neighbors(n,numRows,numCols)
     #print_graph(g, numRows, numCols)
@@ -315,6 +321,14 @@ def main():
         curr = new
         currentOrientation = newOrientation
 
+        if ((curr.row == 0) and (curr.col == 1)):
+            update_weight(1,1, g, n, 1000, numRows, numCols)
+
+        if ((curr.row == 0) and (curr.col == 0)):
+            update_weight(1,0, g, n, 1000, numRows, numCols)
+
+
+
 
 
 
@@ -326,4 +340,12 @@ def main():
     print print_res
 
 
-main()
+START_X = int(sys.argv[1])
+START_Y = int(sys.argv[2])
+END_X = int(sys.argv[3])
+END_Y = int(sys.argv[4])
+
+START = (START_X, START_Y)
+END = (END_X, END_Y)
+
+main(START, END)

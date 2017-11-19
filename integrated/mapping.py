@@ -1,4 +1,5 @@
 from math import sqrt
+import sys
 from itertools import product
 from Queue import PriorityQueue
 import copy
@@ -320,12 +321,14 @@ def print_node(n):
 #Main loop, basically just infinite loops until we reach ending path
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
-def main(numRows, numCols):
+def main(numRows, numCols,start, end):
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
+    start_x, start_y = start
+    end_x, end_y = end
 
-    start = g[0][2]
-    end = g[4][2]
+    start = g[start_x][start_y]
+    end = g[end_x][end_y]
 
     curr = start
     res = []
@@ -401,6 +404,13 @@ NUM_OBSTACLES = 2
 GRID_SIZE = 24
 NUM_ROWS = 9
 NUM_COLS = 4
+START_X = int(sys.argv[1])
+START_Y = int(sys.argv[2])
+END_X = int(sys.argv[3])
+END_Y = int(sys.argv[4])
+
+START = (START_X, START_Y)
+END = (END_X, END_Y)
 
 #Camera initialization
 cap = cv2.VideoCapture() # Video capture object
@@ -409,5 +419,5 @@ IMAGE_COUNT = 1
 
 
 
-main(NUM_ROWS, NUM_COLS)
+main(NUM_ROWS, NUM_COLS, START, END)
 gpio.cleanup()
