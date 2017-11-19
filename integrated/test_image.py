@@ -8,6 +8,8 @@ import cv2
 def takeIm(file_name, camera, rawCapture):
     # allow the camera to warmup
     #time.sleep(0.1)
+    print "camera: ", camera
+    print "rawCapture: ", rawCapture
        
     # grab an image from the camera
     camera.capture(rawCapture, format="bgr")
