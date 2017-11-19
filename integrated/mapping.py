@@ -8,6 +8,11 @@ import threadDrive
 import RPi.GPIO as gpio
 from featureDetection import *
 from test_image import takeIm
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
+import cv2
+
 
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
@@ -391,7 +396,7 @@ def cleanup():
     CAMERA.close()
     gpio.cleanup()
 
-
+######GLOBALS AND CONSTANTS INITIALIZATIONS
 #Initialize motors
 gpio.setmode(gpio.BOARD)
 a = threadDrive.motor(18, 22, 12, 16)

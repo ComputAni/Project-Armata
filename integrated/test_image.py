@@ -6,8 +6,6 @@ import cv2
  # initialize the camera and grab a reference to the raw camera capture
 
 def takeIm(file_name, camera, rawCapture):
-
-      
     # allow the camera to warmup
     #time.sleep(0.1)
        
@@ -19,6 +17,5 @@ def takeIm(file_name, camera, rawCapture):
 
     # display the image on screen and wait for a keypress
     cv2.imwrite(file_name, img)
-    camera.close()
 
 #takeIm("calibrate.png")
