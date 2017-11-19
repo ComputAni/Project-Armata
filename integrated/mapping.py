@@ -175,6 +175,8 @@ def motion_plan(curr, new, orientation):
             move_forward()
         elif (orientation == "S"):
             move_backward()
+            newOrientation = orientation
+            return (newOrientation, turned)
         elif (orientation == "W"):
             rotate_cw()
             #move_forward()
@@ -198,6 +200,8 @@ def motion_plan(curr, new, orientation):
             turned = True
         elif (orientation == "W"):
             move_backward()
+            newOrientation = orientation
+            return (newOrientation, turned)
         elif (orientation == "E"):
             move_forward()
         else:
@@ -207,6 +211,8 @@ def motion_plan(curr, new, orientation):
     elif (delta == (-1,0)):
         if (orientation == "N"):
             move_backward()
+            newOrientation = orientation
+            return (newOrientation, turned)
         elif (orientation == "S"):
             move_forward()
         elif (orientation == "W"):
@@ -237,6 +243,8 @@ def motion_plan(curr, new, orientation):
             move_forward()
         elif (orientation == "E"):
             move_backward()
+            newOrientation = orientation
+            return (newOrientation, turned)
         else:
             move_forward()
         newOrientation = "W"
