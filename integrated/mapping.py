@@ -415,7 +415,7 @@ knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
 knownDistance = 24
 CAMERA = PiCamera()
-RAWCAPTURE = PiRGBArray(camera)
+RAWCAPTURE = PiRGBArray(CAMERA)
 
 
 #Globals for the obstacle course
