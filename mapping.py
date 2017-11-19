@@ -3,7 +3,8 @@ from itertools import product
 from Queue import PriorityQueue
 import copy
 import random
-import sys  
+import sys
+import argparse
 
 
 #Orientations for the robot, facing N (default)
@@ -286,8 +287,6 @@ def main(start, end):
     res = []
     i= 0
 
-    print curr
-
     currentOrientation = "N"
 
     update_weight(1,2,g,n, 1000, numRows, numCols)
@@ -297,6 +296,7 @@ def main(start, end):
 
 
     print "Starting at: ", print_node(curr)
+    print "Ending at: ", print_node(end)
     print "with orientation: ", currentOrientation
 
     while (curr != end):
@@ -321,11 +321,11 @@ def main(start, end):
         curr = new
         currentOrientation = newOrientation
 
-        if ((curr.row == 0) and (curr.col == 1)):
-            update_weight(1,1, g, n, 1000, numRows, numCols)
+        #if ((curr.row == 0) and (curr.col == 1)):
+            #update_weight(1,1, g, n, 1000, numRows, numCols)
 
-        if ((curr.row == 0) and (curr.col == 0)):
-            update_weight(1,0, g, n, 1000, numRows, numCols)
+        #if ((curr.row == 0) and (curr.col == 0)):
+            #update_weight(1,0, g, n, 1000, numRows, numCols)
 
 
 
@@ -340,12 +340,17 @@ def main(start, end):
     print print_res
 
 
-START_X = int(sys.argv[1])
-START_Y = int(sys.argv[2])
-END_X = int(sys.argv[3])
-END_Y = int(sys.argv[4])
+parser = argparse.ArgumentParser(description = 'Process display arguments')
+parser.add_argument('-s', nargs = '?', default = '1,1')
+parser.add_argument('-e', nargs = '?', default = '2,2')
+args = parser.parse_args()
 
-START = (START_X, START_Y)
-END = (END_X, END_Y)
+START_LIST = args.s.split(",")
+END_LIST = args.e.split(",")
+
+START = (int(START_LIST[0]), int(START_LIST[1]))
+END = (int(END_LIST[0]), int(END_LIST[1]))
+
+print END
 
 main(START, END)
