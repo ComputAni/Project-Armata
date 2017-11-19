@@ -257,10 +257,10 @@ def box_round(coords):
 
 #CV Routine
 def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx):
-    global GRID_SIZE, IMAGE_COUNT
+    global GRID_SIZE, IMAGE_COUNT, CAMERA, RAWCAPTURE
 
     file_name = "im" + str(IMAGE_COUNT) + ".png"
-    takeIm(file_name)
+    takeIm(file_name, CAMERA, RAWCAPTURE)
     IMAGE_COUNT += 1
 
     (boxCoordinates, distances) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
@@ -318,6 +318,13 @@ def print_node(n):
     print (n.row, n.col, n.weight)
     return
 
+def print_result(res):
+    print_res = []
+    for node in res:
+        print_res.append((node.row,node.col))
+
+    print print_res
+
 #Main loop, basically just infinite loops until we reach ending path
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
@@ -374,11 +381,15 @@ def main(numRows, numCols,start, end):
 
 
     res.append(end)
-    print_res = []
-    for node in res:
-        print_res.append((node.row,node.col))
+    print_result(res)
 
-    print print_res
+
+
+def cleanup():
+    global CAMERA
+
+    CAMERA.close()
+    gpio.cleanup()
 
 
 #Initialize motors
@@ -398,6 +409,9 @@ BACKWARD_TICKS = -5600
 knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 #knownWidthPx = 180.99
 knownDistance = 24
+CAMERA = PiCamera()
+RAWCAPTURE = PiRGBArray(camera)
+
 
 #Globals for the obstacle course
 NUM_OBSTACLES = 2
@@ -418,6 +432,5 @@ cap.open(0) # Enable the camera
 IMAGE_COUNT = 1
 
 
-
 main(NUM_ROWS, NUM_COLS, START, END)
-gpio.cleanup()
+cleanup()
