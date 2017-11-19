@@ -411,9 +411,10 @@ BACKWARD_TICKS = -5600
 
 
 #Calibrate camera subsystem
-knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
-#knownWidthPx = 180.99
-print knownWidthPx
+#knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
+knownWidthPx = 254.59
+
+print "KnownWidthPx", knownWidthPx
 knownDistance = 24
 
 
