@@ -24,7 +24,7 @@ Kp = 1
 Kd = 0.5
 Ki = 0
 
-driveThreshold = 67
+driveThreshold = 70
 rotThreshold = 85
 
 def forwardClip(diff, out1):

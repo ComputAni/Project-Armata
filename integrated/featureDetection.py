@@ -230,8 +230,7 @@ R = x / d)
 3. Assuming linear relationship between world coord and screen space
 the x-displacement of the centroid is X * (centroid_x_im / im_width)
 '''
-def getXcoord(depth, bbox):
-	cx = 480 # center of the screen
+def getXcoord(depth, bbox, cx):
 	print(bbox[0], bbox[2], cx)
 	xPix = bbox[0] + bbox[2] - cx
 	xDepthRatio = 13.7 / 34 # Experimental ratio of x displacement to depth (world coord)
