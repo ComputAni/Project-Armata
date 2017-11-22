@@ -270,7 +270,7 @@ def box_round(coords):
 
 #CV Routine
 def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx):
-    global GRID_SIZE, IMAGE_COUNT
+    global GRID_SIZE, IMAGE_COUNT, SCREENW
 
     file_name = "im" + str(IMAGE_COUNT) + ".png"
     takeIm(file_name)
@@ -289,7 +289,7 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
         #print boxCoordinates[i]
         points = getCoordPointsFromBox(boxCoordinates[i])
         print points
-        obstacle_list.append(getXcoord(distances[i], points)) 
+        obstacle_list.append(getXcoord(distances[i], points, SCREENW/2)) 
 
     print "obstacle_list", obstacle_list
 
@@ -416,6 +416,7 @@ CW_TICKS = 2150
 CCW_TICKS = -2200
 FORWARD_TICKS = 5600
 BACKWARD_TICKS = -5600
+SCREENW = 640
 
 
 #Calibrate camera subsystem
