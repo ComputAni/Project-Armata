@@ -269,7 +269,7 @@ def box_round(coords):
 
 
 #CV Routine
-def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx):
+def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx, end_point):
     global GRID_SIZE, IMAGE_COUNT, SCREENW
 
     file_name = "im" + str(IMAGE_COUNT) + ".png"
@@ -306,8 +306,15 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
         print "Actual obstacle location: ", (obstacle_X, obstacle_Y)
 
         if ((obstacle_X != curr_X) or (obstacle_Y != curr_Y)):
-            print "Updating weight"
-            g,n = update_weight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
+            if ((obstacle_X == end_point[0]) and (obstacle_Y == end_point[1])):
+                print "Obstacle detected at the end location! Aborting mission."
+                return None, None
+
+            if (inBounds(obstacle_X, obstacle_Y, numRows, numCols)):
+                print "Updating weight"
+                g,n = update_weight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
+            else:
+                print "Out of bounds obstacle detected at: ", obstacle_X, obstacle_Y
     
     return g,n
 
@@ -346,6 +353,7 @@ def main(numRows, numCols,start, end):
     n = neighbors(g, numRows, numCols)
     start_x, start_y = start
     end_x, end_y = end
+    end_point = end
 
     start = g[start_x][start_y]
     end = g[end_x][end_y]
@@ -365,7 +373,11 @@ def main(numRows, numCols,start, end):
     while (curr != end):
 
         #Detect obstacles
-        g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx)
+        g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point)
+
+        if ((g == None) and (n == None)):
+            print "Aborting mission, no path!"
+            return
 
         #Plan new route, assuming new information given
         p = astar_search(g, n, curr,end)
