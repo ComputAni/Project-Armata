@@ -1,9 +1,6 @@
-from math import sqrt
-import sys
+import math, sys, copy, random, time, cv2
 from itertools import product
 from Queue import PriorityQueue
-import copy
-import random
 import threadDrive
 import RPi.GPIO as gpio
 from featureDetection import *
@@ -11,14 +8,26 @@ from test_image import takeIm
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 from simpleServer import *
-import time
-import cv2
 from cleanup import cleanUpRun
+
+############################################
+"""
+This is the main script of our 18-500 ECE Capstone project. We are Project Armada
+Group 4a. Our project is an autonomous search and explore robot that uses computer vision
+and motion planning to get to the desired end point. We have two interfaces: cmd line and iOS app.
+To use command line, simply run "python mapping.py start_row start_col end_row end_col" where each of the 
+4 following arguments are valid integers within the course (9x4). If you want to use the iOS app, simply
+run "python mapping.py" and interface the program with the app (this interface is explained on the iOS app itself).
+
+The current dimensions of the course are a 9 row by 4 column grid, but all code and logic scales 
+to these global variables. To change the size of the course, check out NUM_ROWS, NUM_COLS in our global variable
+section.
+"""
+############################################
 
 
 #Orientations for the robot, facing N (default)
 orientations = ["N", "S", "W", "E"]
-
 
 class Node(object):
     def __init__(self, r,c, state, weight):
@@ -26,8 +35,6 @@ class Node(object):
         self.col = c
         self.state = state
         self.weight = weight
-
-
 
 #Generates a graph which is just a list of (x,y) nodes
 def make_graph(numRows, numCols):
@@ -44,8 +51,53 @@ def make_graph(numRows, numCols):
 
 
 #Just makes sure we're inside the grid
-def inBounds(row,col, numRows, numCols):
-    return row >= 0 and col >= 0 and row < numRows and col < numCols
+def inBounds(row,col, num_rows, num_cols):
+    return row >= 0 and col >= 0 and row < num_rows and col < num_cols
+
+#Boundaries are:
+#North, South, West, East, NW, NE, SW,SE
+#Returns the orientations of the robot that satisfy the condition of facing outwards
+#Return None if the robot is in an interior point
+def get_boundary(row,col, num_rows, num_cols):
+    
+    if (not(inBounds(row, col, num_rows, num_cols))):
+        return None
+
+    if (row == 0):
+        if (col == 0):
+            return "SW"
+        elif (col == (num_cols) - 1):
+            return "SE"
+        else:
+            return "S"
+    elif (row == (num_rows-1)):
+        if (col == 0):
+            return "NW"
+        elif (col == (num_cols) - 1):
+            return "NE"
+        else:
+            return "N"
+    elif (col == 0):
+        return "W"
+    elif (col == (num_cols-1)):
+        return "E"
+    else:
+        return None
+
+
+#Given the current node and the orientation, determine if node is on the boundary
+#If so, return if orientation of robot is facing outside of the boundary
+#If this is the case, then we do not need to detect obstacles
+def valid_position(curr_node, curr_orientation, num_rows, num_cols):
+    curr_row,curr_col = curr_node.row, curr_node.col
+
+    orientations = get_boundary(curr_row, curr_col, num_rows, num_cols)
+
+    if (orientations != None):
+        return not(curr_orientation in orientations)
+
+    return True
+
 
 #Given a node (x,y), finds the neighbors of this node. For our purposes, only 4 
 #such neighbors, up down left right (no diagnals for now)
@@ -168,8 +220,6 @@ def motion_plan(curr, new, orientation):
 
     turned = False
 
-    # print delta
-
     #Going north
     if (delta == (1,0)):
         if (orientation == "N"):
@@ -177,8 +227,8 @@ def motion_plan(curr, new, orientation):
             move_forward()
         elif (orientation == "S"):
             move_backward()
-            newOrientation = orientation
-            return (newOrientation, turned)
+            new_orientation = orientation
+            return (new_orientation, turned)
         elif (orientation == "W"):
             rotate_cw()
             #move_forward()
@@ -189,7 +239,7 @@ def motion_plan(curr, new, orientation):
             turned = True
         else:
             move_forward()
-        newOrientation = "N"
+        new_orientation = "N"
     #Going east
     elif (delta == (0,1)):
         if (orientation == "N"):
@@ -202,19 +252,19 @@ def motion_plan(curr, new, orientation):
             turned = True
         elif (orientation == "W"):
             move_backward()
-            newOrientation = orientation
-            return (newOrientation, turned)
+            new_orientation = orientation
+            return (new_orientation, turned)
         elif (orientation == "E"):
             move_forward()
         else:
             move_forward()
-        newOrientation = "E"
+        new_orientation = "E"
     #Going south
     elif (delta == (-1,0)):
         if (orientation == "N"):
             move_backward()
-            newOrientation = orientation
-            return (newOrientation, turned)
+            new_orientation = orientation
+            return (new_orientation, turned)
         elif (orientation == "S"):
             move_forward()
         elif (orientation == "W"):
@@ -230,7 +280,7 @@ def motion_plan(curr, new, orientation):
             move_forward()
 
         #Update orientation to face the direction of movement
-        newOrientation = "S"
+        new_orientation = "S"
     #Going west
     elif (delta == (0,-1)):
         if (orientation == "N"):
@@ -245,13 +295,13 @@ def motion_plan(curr, new, orientation):
             move_forward()
         elif (orientation == "E"):
             move_backward()
-            newOrientation = orientation
-            return (newOrientation, turned)
+            new_orientation = orientation
+            return (new_orientation, turned)
         else:
             move_forward()
-        newOrientation = "W"
+        new_orientation = "W"
 
-    return (newOrientation, turned)
+    return (new_orientation, turned)
 
 
 #Tuple of (x,y), normalizes to grid
@@ -284,12 +334,9 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
     print "Distance after feature detection: ", distances
 
     obstacle_list = []
-    # for (i,coord) in enumerate(boxCoordinates):
-    #     points = getCoordPointsFromBox(coord)
-    #     obstacle_list.append(getXcoord(distances[i], points))
+
     print "boxCoordinates: ", boxCoordinates, len(boxCoordinates) 
     for i in xrange(len(boxCoordinates)):
-        #print boxCoordinates[i]
         points = getCoordPointsFromBox(boxCoordinates[i])
         print points
         obstacle_list.append(getXcoord(distances[i], points, SCREENW/2)) 
@@ -321,14 +368,14 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
     
     return g,n
 
-def print_graph(g, numRows, numCols):
-    for i in range(numRows):
-        for j in range(numCols):
+def print_graph(g, num_rows, num_cols):
+    for i in range(num_rows):
+        for j in range(num_cols):
             node = g[i][j]
 
             print (node.row, node.col, node.weight)
 
-def print_neighbors(n, numRows, numCols):
+def print_neighbors(n, num_rows, num_cols):
 
     for node in n:
         neighbs = n[node]
@@ -352,50 +399,50 @@ def print_result(res):
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
 def main(numRows, numCols,main_start, main_end):
-    print main_start, main_end
 
+    print "Starting main mapping routine!"
 
+    #Initialize graph, initialize neighbors
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
     start_x, start_y = main_start
     end_x, end_y = main_end
     end_point = main_end
-
     map_start = g[start_x][start_y]
     map_end = g[end_x][end_y]
 
+    #Current node we're at
     curr = map_start
+    #Result list of nodes robot took to reach final destination
     res = []
-    i = 0
-    
+    #Initialize weight of obstacles to be 1000 (arbitrary, for A* search)
     obstacle_weight = 1000
-    currentOrientation = "N"
+    #Initialize current orientation to be North, with localization, we can change this,
+    #But currently, just manually place robot in this orientation
+    current_orientation = "N"
 
     print "Starting at: ", print_node(curr)
-    print "with orientation: ", currentOrientation
+    print "with orientation: ", current_orientation
 
     while (curr != map_end):
 
         #Detect obstacles
-        g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point)
+        if (valid_position(curr, current_orientation, numRows, numCols)):
+            g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point)
 
+        #If invalid obstacle detected (aka at end point), abort mission
         if ((g == None) and (n == None)):
             print "Aborting mission, no path!"
-            return
+            return None
 
         #Plan new route, assuming new information given
         p = astar_search(g, n, curr, map_end)
         path = generate_path(p, map_end)
-
         #The next node to take is at the end of the list
         new = path[-1]
-        
-        print path
-        print "Make move"
 
         #Use robot API to maneuver, given current orientation and nodes to go to
-        (newOrientation, turned) = motion_plan(curr, new, currentOrientation)
-        #print newOrientation
+        (new_orientation, turned) = motion_plan(curr, new, current_orientation)
         
         #Update states, if we don't turn, add current node to result list
         #Update current to be newly planned node
@@ -405,10 +452,9 @@ def main(numRows, numCols,main_start, main_end):
         else:
             print "Turned!"
 
-        currentOrientation = newOrientation
+        current_orientation = new_orientation
 
-        print "After algorithms, current: " , curr.row, curr.col, currentOrientation, map_end.row, map_end.col
-
+        print "After algorithms, current: %d,%d, Orientation: %s" % (curr.row, curr.col, current_orientation)
         #print_graph(g, numRows, numCols)
 
 
@@ -451,13 +497,15 @@ knownDistance = 24
 
 
 #Globals for the obstacle course
+#GRID_SIZE in inches (e.g 2 tiles)
 NUM_OBSTACLES = 2
 GRID_SIZE = 24
+#Using a 9x4 grid
 NUM_ROWS = 9
 NUM_COLS = 4
-#START = None
-#END = None
 
+#If command line args detected, use them as start, end
+#Otherwise use start,end from mobile app
 if (len(sys.argv) > 1):
     print "Found command line args"
     START_X = int(sys.argv[1])
@@ -471,12 +519,17 @@ else:
     "Using iOS args"
     START,END = server_run()
 
+#Check if start and end positions are valid
+if (not(inBounds(START[0],START[1], NUM_ROWS, NUM_COLS))):
+    print "Invalid start coordinate given! Aborting mission!"
+if (not(inBounds(END[0],END[1], NUM_ROWS, NUM_COLS))):
+    print "Invalid end coordinate given! Aborting mission!"
+
 #Camera initialization
 cap = cv2.VideoCapture() # Video capture object
 cap.open(0) # Enable the camera
 IMAGE_COUNT = 1
 
 ##RUNNING MAIN LOOP, initialize server to get coordinates, then run main
-
 main(NUM_ROWS, NUM_COLS, START, END)
 cleanup_seq()
