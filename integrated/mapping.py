@@ -10,6 +10,7 @@ from featureDetection import *
 from test_image import takeIm
 from picamera.array import PiRGBArray
 from picamera import PiCamera
+from simpleServer import *
 import time
 import cv2
 
