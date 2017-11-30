@@ -450,16 +450,21 @@ NUM_OBSTACLES = 2
 GRID_SIZE = 24
 NUM_ROWS = 9
 NUM_COLS = 4
+START = None
+END = None
 
-"""
-START_X = int(sys.argv[1])
-START_Y = int(sys.argv[2])
-END_X = int(sys.argv[3])
-END_Y = int(sys.argv[4])
+if (len(sys.argv) > 1):
+    print "Found command line args"
+    START_X = int(sys.argv[1])
+    START_Y = int(sys.argv[2])
+    END_X = int(sys.argv[3])
+    END_Y = int(sys.argv[4])
 
-START = (START_X, START_Y)
-END = (END_X, END_Y)
-"""
+    START = (START_X, START_Y)
+    END = (END_X, END_Y)
+else:
+    "Using iOS args"
+    START,END = server_run()
 
 #Camera initialization
 cap = cv2.VideoCapture() # Video capture object
@@ -467,6 +472,6 @@ cap.open(0) # Enable the camera
 IMAGE_COUNT = 1
 
 ##RUNNING MAIN LOOP, initialize server to get coordinates, then run main
-START,END = server_run()
+
 main(NUM_ROWS, NUM_COLS, START, END)
 cleanup_seq()
