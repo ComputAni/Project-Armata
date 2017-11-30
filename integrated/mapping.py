@@ -13,6 +13,7 @@ from picamera import PiCamera
 from simpleServer import *
 import time
 import cv2
+from cleanup import cleanUpRun
 
 
 #Orientations for the robot, facing N (default)
@@ -350,6 +351,7 @@ def print_result(res):
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
 def main(numRows, numCols,start, end):
+
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
     start_x, start_y = start
@@ -365,8 +367,6 @@ def main(numRows, numCols,start, end):
     
     obstacle_weight = 1000
     currentOrientation = "N"
-
-    #update_weight(3,2,g,n, 1000, numRows, numCols)
 
     print "Starting at: ", print_node(curr)
     print "with orientation: ", currentOrientation
@@ -411,14 +411,15 @@ def main(numRows, numCols,start, end):
 
 
 
-def cleanup():
+def cleanup_seq():
     #global CAMERA
 
     #CAMERA.close()
     gpio.cleanup()
 
 ######GLOBALS AND CONSTANTS INITIALIZATIONS
-#Initialize motors
+#Cleanup previous state, Initialize motors
+cleanUpRun()
 gpio.setmode(gpio.BOARD)
 a = threadDrive.motor(18, 22, 12, 16)
 b = threadDrive.motor(38, 40, 32, 36)
@@ -445,6 +446,8 @@ NUM_OBSTACLES = 2
 GRID_SIZE = 24
 NUM_ROWS = 9
 NUM_COLS = 4
+
+"""
 START_X = int(sys.argv[1])
 START_Y = int(sys.argv[2])
 END_X = int(sys.argv[3])
@@ -452,12 +455,14 @@ END_Y = int(sys.argv[4])
 
 START = (START_X, START_Y)
 END = (END_X, END_Y)
+"""
 
 #Camera initialization
 cap = cv2.VideoCapture() # Video capture object
 cap.open(0) # Enable the camera
 IMAGE_COUNT = 1
 
-
+##RUNNING MAIN LOOP, initialize server to get coordinates, then run main
+START,END = server_run()
 main(NUM_ROWS, NUM_COLS, START, END)
-cleanup()
+cleanup_seq()
