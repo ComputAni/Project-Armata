@@ -25,4 +25,5 @@ def takeIm(file_name):
 
     camera.close()
 
-#takeIm("calibrate.png")
+# if __name__ == "__main__":
+#     takeIm("fooTest.png")

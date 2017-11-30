@@ -277,9 +277,10 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
     file_name = "im" + str(IMAGE_COUNT) + ".png"
     takeIm(file_name)
     IMAGE_COUNT += 1
-
+    startTime = time.time()
     (boxCoordinates, distances) = getFeatures('Honey_Nut_Cheerios.png', file_name, knownWidthPx, knownDistance)
-
+    finishTime = time.time()
+    print("Feature time: " + str(finishTime - startTime))
     print "Distance after feature detection: ", distances
 
     obstacle_list = []
@@ -386,6 +387,8 @@ def main(numRows, numCols,start, end):
 
         #The next node to take is at the end of the list
         new = path[-1]
+        
+        print "Make move"
 
         #Use robot API to maneuver, given current orientation and nodes to go to
         (newOrientation, turned) = motion_plan(curr, new, currentOrientation)
@@ -403,7 +406,7 @@ def main(numRows, numCols,start, end):
 
         print "After algorithms, current: " , curr.row, curr.col, currentOrientation, end.row, end.col
 
-        #print_graph(g, numRows, numCols)
+        print_graph(g, numRows, numCols)
 
 
     res.append(end)
@@ -420,6 +423,7 @@ def cleanup_seq():
 ######GLOBALS AND CONSTANTS INITIALIZATIONS
 #Cleanup previous state, Initialize motors
 cleanUpRun()
+print "Cleaned up"
 gpio.setmode(gpio.BOARD)
 a = threadDrive.motor(18, 22, 12, 16)
 b = threadDrive.motor(38, 40, 32, 36)
