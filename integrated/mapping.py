@@ -351,18 +351,20 @@ def print_result(res):
 #Main loop, basically just infinite loops until we reach ending path
 #It gets the route, extracts the next move, motion plans said move
 #Updates obstacles if necessary, and repeats until reach goal
-def main(numRows, numCols,start, end):
+def main(numRows, numCols,main_start, main_end):
+    print main_start, main_end
+
 
     g = make_graph(numRows, numCols)
     n = neighbors(g, numRows, numCols)
-    start_x, start_y = start
-    end_x, end_y = end
-    end_point = end
+    start_x, start_y = main_start
+    end_x, end_y = main_end
+    end_point = main_end
 
-    start = g[start_x][start_y]
-    end = g[end_x][end_y]
+    map_start = g[start_x][start_y]
+    map_end = g[end_x][end_y]
 
-    curr = start
+    curr = map_start
     res = []
     i = 0
     
@@ -372,7 +374,7 @@ def main(numRows, numCols,start, end):
     print "Starting at: ", print_node(curr)
     print "with orientation: ", currentOrientation
 
-    while (curr != end):
+    while (curr != map_end):
 
         #Detect obstacles
         g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point)
@@ -382,12 +384,13 @@ def main(numRows, numCols,start, end):
             return
 
         #Plan new route, assuming new information given
-        p = astar_search(g, n, curr,end)
-        path = generate_path(p, end)
+        p = astar_search(g, n, curr, map_end)
+        path = generate_path(p, map_end)
 
         #The next node to take is at the end of the list
         new = path[-1]
         
+        print path
         print "Make move"
 
         #Use robot API to maneuver, given current orientation and nodes to go to
@@ -404,12 +407,12 @@ def main(numRows, numCols,start, end):
 
         currentOrientation = newOrientation
 
-        print "After algorithms, current: " , curr.row, curr.col, currentOrientation, end.row, end.col
+        print "After algorithms, current: " , curr.row, curr.col, currentOrientation, map_end.row, map_end.col
 
-        print_graph(g, numRows, numCols)
+        #print_graph(g, numRows, numCols)
 
 
-    res.append(end)
+    res.append(map_end)
     print_result(res)
 
 
@@ -425,11 +428,13 @@ def cleanup_seq():
 cleanUpRun()
 print "Cleaned up"
 gpio.setmode(gpio.BOARD)
-a = threadDrive.motor(18, 22, 12, 16)
-b = threadDrive.motor(38, 40, 32, 36)
-c = threadDrive.motor(31, 33, 35, 37)
-d = threadDrive.motor(3, 5, 7, 11)
+a = threadDrive.motor(18, 22, 12, 16, 0)
+b = threadDrive.motor(38, 40, 32, 36, 0)
+c = threadDrive.motor(31, 33, 35, 37, 0)
+d = threadDrive.motor(3, 5, 7, 11, 0)
 motorL = [a, b, c, d]
+threadDrive.forward(motorL, 0)
+
 CW_TICKS = 2150
 CCW_TICKS = -2200
 FORWARD_TICKS = 5600
@@ -450,8 +455,8 @@ NUM_OBSTACLES = 2
 GRID_SIZE = 24
 NUM_ROWS = 9
 NUM_COLS = 4
-START = None
-END = None
+#START = None
+#END = None
 
 if (len(sys.argv) > 1):
     print "Found command line args"
