@@ -25,5 +25,5 @@ def takeIm(file_name):
 
     camera.close()
 
-# if __name__ == "__main__":
-#     takeIm("fooTest.png")
+if __name__ == "__main__":
+    takeIm("fooFootIm.png")

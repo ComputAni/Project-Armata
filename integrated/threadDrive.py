@@ -56,7 +56,7 @@ def rotClip(diff, out1):
         return diff
 
 class motor(object):
-    def __init__(self, out1, out2, in1, in2, dest=5600):
+    def __init__(self, out1, out2, in1, in2, dest_ticks=5600):
         gpio.setup(out1, gpio.OUT)
         gpio.setup(out2, gpio.OUT)
         gpio.setup(in1, gpio.IN, pull_up_down=gpio.PUD_UP)
@@ -67,23 +67,23 @@ class motor(object):
         self.out2 = out2
         self.in1 = in1
         self.in2 = in2
-        self.curr = 0
-        self.dest = dest
+        self.curr_motor_pos = 0
+        self.dest_motor_pos = dest_ticks
 
     def restartCnt(self):
-        self.curr = 0
+        self.curr_motor_pos = 0
 
     def encoderCB(self, channel):
         if channel == self.in1:
             if (gpio.input(self.in1) ^ gpio.input(self.in2) == 0):
-                self.curr += 1
+                self.curr_motor_pos += 1
             else:
-                self.curr -= 1
+                self.curr_motor_pos -= 1
         if channel == self.in2:
             if (gpio.input(self.in1) ^ gpio.input(self.in2) == 1):
-                self.curr += 1
+                self.curr_motor_pos += 1
             else:
-                self.curr -= 1
+                self.curr_motor_pos -= 1
 
     def rot(self, duty):
         output1p = False
@@ -105,8 +105,8 @@ class motor(object):
     def workerMethod(self):
         prevErr = 0
         iErr = 0
-        while (abs(self.curr - self.dest) > cutoff):
-            self.pErr = self.dest - self.curr
+        while (abs(self.curr_motor_pos - self.dest_motor_pos) > cutoff):
+            self.pErr = self.dest_motor_pos - self.curr_motor_pos
             dErr = self.pErr - prevErr
             iErr += self.pErr 
             pidOut = (Kp * self.pErr) + (Kd * dErr) + (Ki * iErr)
@@ -124,7 +124,7 @@ def forward(motorL, ticks=5600):
     threadL = []
     for mot in motorL:
         mot.restartCnt()
-        mot.dest = ticks
+        mot.dest_motor_pos = ticks
         mot.isFoward = True
         t = threading.Thread(target=mot.workerMethod)
         threadL.append(t)
@@ -134,10 +134,10 @@ def forward(motorL, ticks=5600):
 
 def cw(motorL, ticks=2400):
     threadL = []
-    motorL[0].dest = ticks
-    motorL[1].dest = ticks
-    motorL[2].dest = -ticks
-    motorL[3].dest = -ticks
+    motorL[0].dest_motor_pos = ticks
+    motorL[1].dest_motor_pos = ticks
+    motorL[2].dest_motor_pos = -ticks
+    motorL[3].dest_motor_pos = -ticks
     for mot in motorL:
         mot.restartCnt()
         mot.isFoward = False

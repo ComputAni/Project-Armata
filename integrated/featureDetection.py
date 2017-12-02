@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-MIN_MATCH_COUNT = 20
+MIN_MATCH_COUNT = 30
 
 
 # # Need to draw only good matches, so create a mask

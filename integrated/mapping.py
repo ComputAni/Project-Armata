@@ -1,13 +1,15 @@
-import math, sys, copy, random, time, cv2
+import math, sys, copy, random, time
+import cv2
 from itertools import product
 from Queue import PriorityQueue
+from pqFromHeap import *
 import threadDrive
 import RPi.GPIO as gpio
 from featureDetection import *
 from test_image import takeIm
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-from simpleServer import *
+from simpleServer import server_run, myServer
 from cleanup import cleanUpRun
 
 ############################################
@@ -129,29 +131,32 @@ def cost(node1, node2):
     return node2.weight
 
 #Astar search algorithm, keeps iterating until no more nodes to explore/reached the end
-def astar_search(graph, neighbors, start, end):
-    frontier = PriorityQueue()
-    frontier.put(start, 0)
+def astar_search(graph, neighbors, a_start, a_end):
+    frontier = MyPriorityQueue()
+    frontier.push(a_start, 0)
     came_from = {}
     cost_so_far = {}
 
-    came_from[start] = None
-    cost_so_far[start] = 0
+    came_from[a_start] = None
+    cost_so_far[a_start] = 0
+    
+    #print_neighbors(neighbors, NUM_ROWS, NUM_COLS)
 
     while (not frontier.empty()):
-        current = frontier.get()
-
-        if (current == end):
+        current_node = frontier.pop()
+        print "Parent: ", print_node(current_node)
+        if (current_node == a_end):
             break
 
-        for n in neighbors[current]:
-            new_cost = cost_so_far[current] + cost(current, n)
-
-            if ((new_cost < 1000) and ((n not in cost_so_far) or (new_cost < cost_so_far[n]))):
-                cost_so_far[n] = new_cost
-                priority = new_cost + heuristic(end, n)
-                frontier.put(n, priority)
-                came_from[n] = current
+        for neighb_node in neighbors[current_node]:
+            new_cost = cost_so_far[current_node] + cost(current_node, neighb_node)
+            #print "new_cost ", new_cost
+            print "Child: ", new_cost, print_node(neighb_node)
+            if ((new_cost < 1000) and ((neighb_node not in cost_so_far) or (new_cost < cost_so_far[neighb_node]))):
+                cost_so_far[neighb_node] = new_cost
+                priority = new_cost + heuristic(a_end, neighb_node)
+                frontier.push(neighb_node, priority)
+                came_from[neighb_node] = current_node
 
     return came_from
 
@@ -429,7 +434,7 @@ def main(numRows, numCols,main_start, main_end):
         #Detect obstacles
         if (valid_position(curr, current_orientation, numRows, numCols)):
             g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point)
-
+            #print_graph(g, numRows, numCols)
         #If invalid obstacle detected (aka at end point), abort mission
         if ((g == None) and (n == None)):
             print "Aborting mission, no path!"
@@ -440,6 +445,8 @@ def main(numRows, numCols,main_start, main_end):
         path = generate_path(p, map_end)
         #The next node to take is at the end of the list
         new = path[-1]
+
+        print "The path planned is: ", print_result(path)
 
         #Use robot API to maneuver, given current orientation and nodes to go to
         (new_orientation, turned) = motion_plan(curr, new, current_orientation)
@@ -481,7 +488,7 @@ d = threadDrive.motor(3, 5, 7, 11, 0)
 motorL = [a, b, c, d]
 threadDrive.forward(motorL, 0)
 
-CW_TICKS = 2150
+CW_TICKS = 2250
 CCW_TICKS = -2200
 FORWARD_TICKS = 5600
 BACKWARD_TICKS = -5600
