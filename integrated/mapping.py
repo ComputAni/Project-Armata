@@ -326,7 +326,7 @@ def box_round(coords):
 
 
 #CV Routine
-def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx, end_point):
+def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDistance, knownWidthPx, end_point, curr_orientation):
     global GRID_SIZE, IMAGE_COUNT, SCREENW
 
     file_name = "im" + str(IMAGE_COUNT) + ".png"
@@ -356,7 +356,16 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
     print "Detected obstacles: ", obstacle_list
 
     for (x,y) in obstacle_list:
-        obstacle_X, obstacle_Y = (curr_X + x, curr_Y + y)
+
+        if (curr_orientation == "N"):
+            obstacle_X, obstacle_Y = (curr_X + x, curr_Y + y)
+        elif (curr_orientation == "W"):
+            obstacle_X, obstacle_Y = (curr_X + y, curr_Y - x)
+        elif (curr_orientation == "E"):
+            obstacle_X, obstacle_Y = (curr_X - y, curr_Y + x)
+        else:
+            obstacle_X, obstacle_Y = (curr_X - x, curr_Y - y)
+
 
         print "Actual obstacle location: ", (obstacle_X, obstacle_Y)
 
@@ -433,7 +442,7 @@ def main(numRows, numCols,main_start, main_end):
 
         #Detect obstacles
         if (valid_position(curr, current_orientation, numRows, numCols)):
-            g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point)
+            g,n = obstacles(g,n, obstacle_weight, numRows, numCols, curr.row, curr.col, knownDistance, knownWidthPx, end_point, current_orientation)
             #print_graph(g, numRows, numCols)
         #If invalid obstacle detected (aka at end point), abort mission
         if ((g == None) and (n == None)):
