@@ -21,16 +21,17 @@ motorL = [a, b, c, d]
 #     threadDrive.cw(motorL, 2400)
 #     threadDrive.cw(motorL, -2400)
 
-# threadDrive.cw(motorL, 2300)
-# time.sleep(1)
-# threadDrive.cw(motorL, -2240)
+threadDrive.cw(motorL, 2100)
+time.sleep(1)
+threadDrive.cw(motorL, -2200)
 
 # Test 3: Forward and rot
-threadDrive.forward(motorL, 5650)
-threadDrive.forward(motorL, 5650)
-threadDrive.cw(motorL, 2350)
-threadDrive.forward(motorL, 5650)
-threadDrive.cw(motorL, -2350)
-threadDrive.forward(motorL, 5650)
+# threadDrive.forward(motorL, 5650)
+# time.sleep(0.5)
+# threadDrive.forward(motorL, 5650)
+# threadDrive.cw(motorL, 2250)
+# threadDrive.forward(motorL, 5650)
+# threadDrive.cw(motorL, -2200)
+# threadDrive.forward(motorL, 5650)
 
 gpio.cleanup()

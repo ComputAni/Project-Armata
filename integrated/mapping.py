@@ -488,8 +488,8 @@ d = threadDrive.motor(3, 5, 7, 11, 0)
 motorL = [a, b, c, d]
 threadDrive.forward(motorL, 0)
 
-CW_TICKS = 2350
-CCW_TICKS = -2300
+CW_TICKS = 2100
+CCW_TICKS = -2200
 FORWARD_TICKS = 5600
 BACKWARD_TICKS = -5600
 SCREENW = 960
