@@ -13,7 +13,7 @@ motorL = [a, b, c, d]
 # # Test 1: Move forward 10 steps
 # for i in range(1):
 #     print("Step number: " + str(i + 1))
-#     threadDrive.forward(motorL, 5650)
+#     threadDrive.forward(motorL, 5600)
 
 # # Test 2: Rotations
 # for i in range(5):
@@ -21,8 +21,16 @@ motorL = [a, b, c, d]
 #     threadDrive.cw(motorL, 2400)
 #     threadDrive.cw(motorL, -2400)
 
-threadDrive.cw(motorL, 2250)
-time.sleep(1)
-threadDrive.cw(motorL, -2250)
+# threadDrive.cw(motorL, 2300)
+# time.sleep(1)
+# threadDrive.cw(motorL, -2240)
+
+# Test 3: Forward and rot
+threadDrive.forward(motorL, 5650)
+threadDrive.forward(motorL, 5650)
+threadDrive.cw(motorL, 2350)
+threadDrive.forward(motorL, 5650)
+threadDrive.cw(motorL, -2350)
+threadDrive.forward(motorL, 5650)
 
 gpio.cleanup()

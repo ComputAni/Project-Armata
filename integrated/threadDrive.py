@@ -24,8 +24,8 @@ Kp = 1
 Kd = 0.5
 Ki = 0
 
-driveThreshold = 70
-rotThreshold = 85
+driveThreshold = 70 # Higher the number, stronger the left motor
+rotThreshold = 80
 
 def forwardClip(diff, out1):
     if diff > 100:
