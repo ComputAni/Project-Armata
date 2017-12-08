@@ -23,7 +23,7 @@ motorL = [a, b, c, d]
 
 threadDrive.cw(motorL, 2100)
 time.sleep(1)
-threadDrive.cw(motorL, -2200)
+threadDrive.cw(motorL, -2100)
 
 # Test 3: Forward and rot
 # threadDrive.forward(motorL, 5650)

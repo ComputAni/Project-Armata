@@ -144,14 +144,14 @@ def astar_search(graph, neighbors, a_start, a_end):
 
     while (not frontier.empty()):
         current_node = frontier.pop()
-        print "Parent: ", print_node(current_node)
+        #print "Parent: ", print_node(current_node)
         if (current_node == a_end):
             break
 
         for neighb_node in neighbors[current_node]:
             new_cost = cost_so_far[current_node] + cost(current_node, neighb_node)
             #print "new_cost ", new_cost
-            print "Child: ", new_cost, print_node(neighb_node)
+            #print "Child: ", new_cost, print_node(neighb_node)
             if ((new_cost < 1000) and ((neighb_node not in cost_so_far) or (new_cost < cost_so_far[neighb_node]))):
                 cost_so_far[neighb_node] = new_cost
                 priority = new_cost + heuristic(a_end, neighb_node)
@@ -340,10 +340,10 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
 
     obstacle_list = []
 
-    print "boxCoordinates: ", boxCoordinates, len(boxCoordinates) 
+    #print "boxCoordinates: ", boxCoordinates, len(boxCoordinates) 
     for i in xrange(len(boxCoordinates)):
         points = getCoordPointsFromBox(boxCoordinates[i])
-        print points
+        #print points
         obstacle_list.append(getXcoord(distances[i], points, SCREENW/2)) 
 
     print "obstacle_list", obstacle_list
@@ -498,7 +498,7 @@ motorL = [a, b, c, d]
 threadDrive.forward(motorL, 0)
 
 CW_TICKS = 2100
-CCW_TICKS = -2200
+CCW_TICKS = -2100
 FORWARD_TICKS = 5600
 BACKWARD_TICKS = -5600
 SCREENW = 960
