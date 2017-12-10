@@ -10,20 +10,11 @@ from matplotlib import pyplot as plt
 MIN_MATCH_COUNT = 30
 
 
-# # Need to draw only good matches, so create a mask
-# matchesMask = [[0,0] for i in xrange(len(matches))]
-
-# # ratio test as per Lowe's paper
-# for i,(m,n) in enumerate(matches):
-#     if m.distance < 0.7*n.distance:
-#         matchesMask[i]=[1,0]
-
 def removePoints(im, pxToRemove):
 
 	box = []
 	for i in xrange(len(pxToRemove)):
 		px = pxToRemove[i][0]
-		#print px, len(px)
 		x = px[0]
 		y = px[1]
 
@@ -75,7 +66,6 @@ def getCoordPointsFromBox(box):
   top = []
 
   for i in xrange(len(box)):
-    #print box[i]
     y.append(box[i][1])
 
   yMean = sum(y) / len(y)
@@ -95,9 +85,6 @@ def getCoordPointsFromBox(box):
     topLeft = top[1]
     topRight = top[0]
 
-  #print (topLeft[0], topLeft[1], topRight[0] - topLeft[0])
-
-
   return (topLeft[0], topLeft[1], topRight[0] - topLeft[0])
 
 # Get the distance given 
@@ -107,13 +94,8 @@ def distance_to_camera(knownDistance, knownWidthPx, width):
 
 
 def featureDetector(img1, img2, img2Clr, times):
-	# img1 = cv2.imread(templateFileName, 0)          # queryImage
-	# img2Clr = cv2.imread(trainFileName) # trainImage
-	# img2Clr = cv2.resize(img2Clr, (0,0), fx = 0.125, fy = 0.125, interpolation = cv2.INTER_AREA);
-	# img2 = cv2.cvtColor(img2Clr, cv2.COLOR_RGB2GRAY)
 
 	i = 0
-	#while(i < times):
 
 	sift = cv2.xfeatures2d.SIFT_create()
 
@@ -153,7 +135,6 @@ def featureDetector(img1, img2, img2Clr, times):
 
 	    img2Clr = cv2.polylines(img2Clr,[np.int32(dst)], True, (255, 255, 0), 3, cv2.LINE_AA)
 
-	    #plt.imshow(img2Clr, 'gray'),plt.show()
 	    cv2.imwrite('res1-box.png', img2Clr)
 
 	else:
@@ -178,13 +159,9 @@ def getFeatures(templateFileName, trainFileName, knownWidthPx, knownDistance):
 	img2Clr = cv2.resize(img2Clr, (0,0), fx = 1.0, fy = 1.0, interpolation = cv2.INTER_AREA);
 	img2 = cv2.cvtColor(img2Clr, cv2.COLOR_RGB2GRAY)
 
-	#boxCoordinates = featureDetector(templateFileName, trainFileName, 1)
 	boxCoordinates = featureDetector(img1, img2, img2Clr, 1)
 
 	print boxCoordinates
-
-	#if boxCoordinates == []:
-	#	return (-1, -1)
 
 	returnBoxCoordinates = []
 	distances = []
@@ -235,18 +212,5 @@ def getXcoord(depth, bbox, cx):
 	xPix = bbox[0] + bbox[2] - cx
 	xDepthRatio = 13.7 / 34 # Experimental ratio of x displacement to depth (world coord)
 	return (depth, xDepthRatio * depth * (xPix / float(cx))) #returns tuple of x-displacement and y-disp (depth)
-  
-
-
-#knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'im0.png')
-# knownWidthPx = 169.114
-# knownDistance = 24
-# print knownWidthPx
-
-#print knownWidthPx
-# (boxCoordinates, distance) = getFeatures('Honey_Nut_Cheerios.png', 'im72.png', knownWidthPx, knownDistance)
-# print distance
-# print boxCoordinates
-
 
 
