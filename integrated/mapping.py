@@ -139,19 +139,15 @@ def astar_search(graph, neighbors, a_start, a_end):
 
     came_from[a_start] = None
     cost_so_far[a_start] = 0
-    
-    #print_neighbors(neighbors, NUM_ROWS, NUM_COLS)
 
     while (not frontier.empty()):
         current_node = frontier.pop()
-        #print "Parent: ", print_node(current_node)
         if (current_node == a_end):
             break
 
         for neighb_node in neighbors[current_node]:
             new_cost = cost_so_far[current_node] + cost(current_node, neighb_node)
-            #print "new_cost ", new_cost
-            #print "Child: ", new_cost, print_node(neighb_node)
+
             if ((new_cost < 1000) and ((neighb_node not in cost_so_far) or (new_cost < cost_so_far[neighb_node]))):
                 cost_so_far[neighb_node] = new_cost
                 priority = new_cost + heuristic(a_end, neighb_node)
@@ -374,8 +370,8 @@ def obstacles(g,n, obstacle_weight, numRows, numCols, curr_X, curr_Y, knownDista
                 print "Obstacle detected at the end location! Aborting mission."
                 return None, None
 
+            #If valid obstacle detected, update weight in graph
             if (inBounds(obstacle_X, obstacle_Y, numRows, numCols)):
-                print "Updating weight"
                 g,n = update_weight(obstacle_X, obstacle_Y,g,n, obstacle_weight, numRows, numCols)
             else:
                 print "Out of bounds obstacle detected at: ", obstacle_X, obstacle_Y
@@ -480,9 +476,6 @@ def main(numRows, numCols,main_start, main_end):
 
 
 def cleanup_seq():
-    #global CAMERA
-
-    #CAMERA.close()
     gpio.cleanup()
 
 ######GLOBALS AND CONSTANTS INITIALIZATIONS
@@ -507,8 +500,6 @@ SCREENW = 960
 #Calibrate camera subsystem
 #knownWidthPx = calibrateImage('Honey_Nut_Cheerios.png', 'calibrate.png')
 knownWidthPx = 254.59
-
-print "KnownWidthPx", knownWidthPx
 knownDistance = 24
 
 
